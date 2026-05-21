@@ -1,0 +1,227 @@
+<div class="trainer-dashboard-container">
+  
+  <!-- Left Side Control Column Fixed Panel -->
+  <app-sidebar></app-sidebar>
+
+  <!-- Right Dynamic Content Engine Workspace Stream -->
+  <main class="dashboard-workspace-stream">
+    
+    <!-- Profile Toolbar Switch Node Segment -->
+    <div class="profile-switch-toolbar">
+      <small class="toolbar-label">Select Active Trainer Profile</small>
+      <mat-button-toggle-group name="activeTrainer" class="custom-toggle-group" [value]="stateSignal().currentTrainerId">
+        @for (t of stateSignal().trainers; track t.id) {
+          <mat-button-toggle [value]="t.id" (change)="switchActiveTrainer(t.id)">
+            {{ t.name }}
+          </mat-button-toggle>
+        }
+      </mat-button-toggle-group>
+    </div>
+
+    <!-- Active Structural Logic Layer Base -->
+    @if (activeTrainer(); as trainer) {
+      
+      <!-- HERO AREA: Profile Presentation Matrix Card -->
+      <mat-card class="trainer-hero-profile-card">
+        <mat-card-content class="hero-content-layout">
+          <div class="identity-block">
+            <img [src]="trainer.avatar_url || 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/trainers/1.png'" 
+                 class="trainer-avatar-thumbnail">
+            <div class="meta-text">
+              <h2 class="trainer-title-identity">{{ trainer.name }}</h2>
+              <div class="badge-row">
+                <span class="region-badge"><i class="bi bi-pin-map-fill"></i> {{ trainer.region }} Region</span>
+                <span class="rank-badge">{{ trainer.rank }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="analytics-metrics-block">
+            <div class="analytics-stat-node border-divider">
+              <h3 class="stat-metric-value text-warning">{{ trainer.badge_count }}</h3>
+              <small class="stat-metric-label">Badges Secured</small>
+            </div>
+            <div class="analytics-stat-node">
+              <h3 class="stat-metric-value text-success">{{ winRateAnalysis().percentage }}%</h3>
+              <small class="stat-metric-label">Win/Loss Ratio</small>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- WORKSPACE SPLIT DUAL COLUMNS GRID LAYOUT -->
+      <div class="workspace-grid">
+        
+        <!-- Left Section Operational Dashboard Panel Layout Area -->
+        <div class="operational-panel">
+          
+          <!-- Core Team Form Setup Node Canvas -->
+          <mat-card class="form-canvas-card">
+            <mat-card-header>
+              <mat-card-title class="panel-header-title">
+                <i class="bi bi-hammer text-primary"></i> Squad Roster Configuration Setup
+              </mat-card-title>
+            </mat-card-header>
+            
+            <mat-card-content class="pt-3">
+              @if (pokemonSlots.length >= 3) {
+                <div class="roster-alert-banner">
+                  <i class="bi bi-shield-exclamation fs-5"></i>
+                  <div><strong>Roster Alert:</strong> Team allocation slots reaching half density. Ensure proper elemental covering.</div>
+                </div>
+              }
+
+              <form [formGroup]="teamForm" (ngSubmit)="onFormSubmit()">
+                
+                <div class="form-field-wrapper">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Team Roster Name Specification</mat-label>
+                    <input matInput formControlName="teamName" placeholder="e.g., Kanto Elite Vanguard Champions">
+                    @if (teamForm.get('teamName')?.touched && teamForm.get('teamName')?.invalid) {
+                      <mat-error>Team Name must be within 3 to 30 characters bounds.</mat-error>
+                    }
+                  </mat-form-field>
+                </div>
+
+                <div class="toggle-regulation-bar">
+                  <mat-slide-toggle id="compSwitchElementNode" color="primary" (change)="toggleCompetitiveMode()">
+                    Enforce High-Tier Tournament Regulation Validation Layers
+                  </mat-slide-toggle>
+                </div>
+
+                @if (competitiveMode()) {
+                  <div class="regulation-protocol-alert animation-slide">
+                    <span class="alert-title"><i class="bi bi-check-circle-fill"></i> Regulation Protocols Enforced</span>
+                    <p class="alert-desc">Dynamic item constraints, tier limitations, and duplication validations are now actively checking models indices parameters properties arrays.</p>
+                  </div>
+                }
+
+                <!-- Grid Allocation Sub-Rows Array Nodes Layout Loop Area -->
+                <div class="composition-nodes-section">
+                  <div class="section-header-row">
+                    <h6 class="composition-title">Active Composition Nodes ({{ pokemonSlots.length }}/6)</h6>
+                    <button type="button" mat-stroked-button color="accent" class="rounded-pill" (click)="addPokemonSlot(6, 'Charizard')">
+                      <i class="bi bi-plus-circle-fill me-1"></i> Add Mock Slot
+                    </button>
+                  </div>
+
+                  <div formArrayName="pokemonSlots" class="slots-responsive-grid">
+                    @for (slotGroup of pokemonSlots.controls; track $index) {
+                      <div [formGroupName]="$index" class="slot-item-node">
+                        <mat-card class="pokemon-matrix-input-slot-card">
+                          <button type="button" class="close-slot-btn" (click)="removePokemonSlot($index)">
+                            <i class="bi bi-x"></i>
+                          </button>
+                          
+                          <mat-card-header class="p-0 mb-2">
+                            <mat-card-subtitle class="slot-pokemon-name text-primary">
+                              <i class="bi bi-cpu-fill text-muted me-1"></i> {{ slotGroup.get('pokemonName')?.value }}
+                            </mat-card-subtitle>
+                          </mat-card-header>
+
+                          <mat-card-content class="p-0 slot-form-controls">
+                            <mat-form-field appearance="outline" subsmeable class="w-100 density-compact">
+                              <mat-label>Custom Alias</mat-label>
+                              <input matInput formControlName="nickname" placeholder="Enter custom Alias">
+                            </mat-form-field>
+                            
+                            <mat-form-field appearance="outline" class="w-100 density-compact">
+                              <mat-label>Core Held Item</mat-label>
+                              <mat-select formControlName="heldItem">
+                                <mat-option value="None">Assign No Core Held Item</mat-option>
+                                <mat-option value="Leftovers">Leftovers Recovery Core</mat-option>
+                                <mat-option value="Life Orb">Life Orb Modifier Tool</mat-option>
+                              </mat-select>
+                            </mat-form-field>
+                          </mat-card-content>
+                        </mat-card>
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <button type="submit" mat-raised-button color="primary" [disabled]="teamForm.invalid" class="w-100 py-3 submit-action-btn">
+                  <i class="bi bi-save2-fill me-2"></i> Deploy & Commit Squad Roster Data Matrix
+                </button>
+              </form>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Historical Collections Saved Roster Registry Array Deck Layout -->
+          <mat-card class="history-registry-card">
+            <mat-card-header>
+              <mat-card-title class="panel-header-sub"><i class="bi bi-archive-fill text-muted me-1"></i> Saved Registered Roster Collections ({{ trainerTeams().length }})</mat-card-title>
+            </mat-card-header>
+            <mat-card-content class="pt-3">
+              <div class="slots-responsive-grid">
+                @for (team of trainerTeams(); track team.id) {
+                  <div class="slot-item-node">
+                    <div class="saved-team-node">
+                      <h6 class="saved-team-title text-truncate">{{ team.name }}</h6>
+                      <small class="text-muted d-block mb-2 font-monospace small"><i class="bi bi-clock-history"></i> Built: {{ team.created_at | date:'mediumDate' }}</small>
+                      <span class="badge-slots-counter">
+                        Slots Count: {{ team.pokemon_ids.length }} Nodes
+                      </span>
+                    </div>
+                  </div>
+                } @empty {
+                  <div class="empty-state-box full-width-span">
+                    <i class="bi bi-folder-x fs-2 text-muted d-block mb-2"></i> No active team records entries match inside this identity schema yet.
+                  </div>
+                }
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+        </div>
+
+        <!-- Right Column Historical Logs List Row Stream Elements Box Container Base Layout Area -->
+        <div class="sidebar-logs-panel">
+          <mat-card class="battle-logs-card">
+            <mat-card-header>
+              <mat-card-title class="panel-header-sub"><i class="bi bi-shield-shaded text-muted me-1"></i> Battle Logs Ledger</mat-card-title>
+            </mat-card-header>
+            <mat-card-content class="p-0">
+              <mat-nav-list class="battle-logs-list">
+                @for (battle of stateSignal().battles; track battle.id) {
+                  @if (battle.trainer_id === stateSignal().currentTrainerId) {
+                    <mat-list-item class="battle-log-item-wrapper">
+                      <div class="battle-log-item-content">
+                        <div class="log-meta">
+                          <h6 class="opponent-title text-capitalize">vs {{ battle.opponent_name }}</h6>
+                          <small class="timestamp-label"><i class="bi bi-calendar3-event"></i> {{ battle.date }}</small>
+                          <span class="score-matrix-tag">
+                            Score: {{ battle.score_trainer }} - {{ battle.score_opponent }}
+                          </span>
+                        </div>
+                        <span [class]="battle.result === 'win' ? 'battle-badge-win' : 'battle-badge-loss'">
+                          {{ battle.result | uppercase }}
+                        </span>
+                      </div>
+                    </mat-list-item>
+                    <mat-divider></mat-divider>
+                  }
+                } @empty {
+                  <div class="empty-state-box py-5">
+                    <i class="bi bi-clipboard-x d-block fs-3 mb-2 text-muted"></i> No matches index logs cataloged over this profile grid layout.
+                  </div>
+                }
+              </mat-nav-list>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+      </div>
+
+    } @else {
+      
+      <!-- LOADING ANIMATION CHANNELS ROOT COMPONENT INDICATOR CONTAINER CORE VIEW LAYOUT -->
+      <div class="layout-sync-loader-wrapper">
+        <mat-spinner diameter="40" class="mb-3 mx-auto"></mat-spinner>
+        <p class="loader-primary-text">Synchronizing Layout Channels</p>
+        <p class="loader-secondary-text">Connecting internal signals streams engines components...</p>
+      </div>
+
+    }
+  </main>
+</div>

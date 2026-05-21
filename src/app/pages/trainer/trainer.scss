@@ -1,0 +1,460 @@
+// =========================================================================
+// ANGULAR MATERIAL MINIMALIST EXECUTIVE THEMATIC HOOKS CONFIGURATION
+// =========================================================================
+$slate-dark-gradient: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+$executive-light-bg: #f8fafc;
+$card-border-subtle: #e2e8f0;
+$text-slate-muted: #64748b;
+  
+.trainer-dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: $executive-light-bg;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+
+  .dashboard-workspace-stream {
+    flex-grow: 1;
+    padding: 2rem;
+    overflow-y: auto;
+    height: 100vh;
+    box-sizing: border-box;
+  }
+}
+
+// 1. Angular Material Custom Button Toggle Row
+.profile-switch-toolbar {
+  margin-bottom: 2rem;
+
+  .toolbar-label {
+    text-transform: uppercase;
+    color: $text-slate-muted;
+    font-weight: 700;
+    font-size: 0.725rem;
+    display: block;
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.05em;
+  }
+
+  .custom-toggle-group {
+    border: 1px solid $card-border-subtle !important;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+    padding: 2px;
+
+    mat-button-toggle {
+      border-left: none !important;
+      background-color: transparent;
+      font-weight: 500;
+      color: #475569;
+
+      &.mat-button-toggle-checked {
+        background-color: #3b82f6 !important;
+        color: #ffffff !important;
+        border-radius: 6px;
+      }
+    }
+  }
+}
+
+// 2. Identity Presentation Top Elevation Card
+.trainer-hero-profile-card {
+  background: $slate-dark-gradient !important;
+  color: #ffffff !important;
+  border-radius: 12px !important;
+  margin-bottom: 2rem;
+  box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.08) !important;
+  border: none !important;
+
+  .hero-content-layout {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 2rem !important;
+  }
+
+  .identity-block {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+
+    .trainer-avatar-thumbnail {
+      border-radius: 50%;
+      background-color: #ffffff;
+      padding: 6px;
+      width: 76px;
+      height: 76px;
+      object-fit: contain;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .trainer-title-identity {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem 0;
+      letter-spacing: -0.02em;
+      text-transform: capitalize;
+    }
+
+    .badge-row {
+      display: flex;
+      gap: 0.5rem;
+      
+      .region-badge {
+        background: rgba(245, 158, 11, 0.2);
+        color: #fbbf24;
+        padding: 4px 12px;
+        border-radius: 99px;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+
+      .rank-badge {
+        background: rgba(6, 182, 212, 0.2);
+        color: #22d3ee;
+        padding: 4px 12px;
+        border-radius: 99px;
+        font-size: 0.75rem;
+        font-family: monospace;
+      }
+    }
+  }
+
+  .analytics-metrics-block {
+    display: flex;
+    align-items: center;
+
+    .analytics-stat-node {
+      text-align: center;
+      padding: 0 2rem;
+
+      &.border-divider {
+        border-right: 1px solid rgba(255, 255, 255, 0.15);
+      }
+
+      .stat-metric-value {
+        margin: 0;
+        font-size: 1.85rem;
+        font-weight: 800;
+      }
+
+      .stat-metric-label {
+        color: rgba(255, 255, 255, 0.5);
+        text-transform: uppercase;
+        font-size: 0.7rem;
+        letter-spacing: 0.05em;
+        margin-top: 0.25rem;
+        display: block;
+      }
+    }
+  }
+}
+
+// 3. Grid Workspace Splitting Base Architecture Layout
+.workspace-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+
+  @media(max-width: 992px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panel-header-title {
+  font-size: 1.15rem !important;
+  font-weight: 700 !important;
+  color: #1e293b;
+}
+
+.panel-header-sub {
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  color: #334155;
+}
+
+// 4. Operational Form Elements & Inputs Cards Styles
+.form-canvas-card, .history-registry-card, .battle-logs-card {
+  background-color: #ffffff !important;
+  border-radius: 12px !important;
+  border: 1px solid $card-border-subtle !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02) !important;
+}
+
+.history-registry-card {
+  margin-top: 2rem;
+}
+
+.roster-alert-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background-color: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #b45309;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+}
+
+.toggle-regulation-bar {
+  background: #f8fafc;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #f1f5f9;
+  margin-bottom: 1.5rem;
+}
+
+.regulation-protocol-alert {
+  background-color: rgba(59, 130, 246, 0.05);
+  border-left: 4px solid #3b82f6;
+  padding: 1rem;
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 1.5rem;
+
+  .alert-title {
+    display: block;
+    font-weight: 700;
+    color: #1d4ed8;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+  }
+  .alert-desc {
+    color: #475569;
+    font-size: 0.825rem;
+    margin: 0;
+  }
+}
+
+// 5. Responsive Grid Matrices & Slots Allocation Containers
+.slots-responsive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.full-width-span {
+  grid-column: 1 / -1;
+}
+
+.section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  
+  .composition-title {
+    font-weight: 700;
+    color: $text-slate-muted;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.025em;
+    margin: 0;
+  }
+}
+
+.pokemon-matrix-input-slot-card {
+  border: 1px solid $card-border-subtle !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  padding: 1rem !important;
+  position: relative;
+  background-color: #ffffff !important;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08) !important;
+    transform: translateY(-2px);
+  }
+
+  .close-slot-btn {
+    position: absolute;
+    top: 6px;
+    end: 6px;
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 1.15rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    border-radius: 4px;
+
+    &:hover {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+  }
+
+  .slot-pokemon-name {
+    font-weight: 700 !important;
+    font-size: 0.9rem !important;
+    text-transform: capitalize;
+    border-bottom: 1px dashed $card-border-subtle;
+    padding-bottom: 0.5rem;
+    width: 100%;
+    display: block;
+  }
+
+  .slot-form-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+}
+
+// Compact density overrides for standard inputs
+::v-deep .density-compact {
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none !important; // Hide error space padding if not active inside grid slots
+  }
+  .mat-mdc-text-field-wrapper {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+}
+
+.submit-action-btn {
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  font-size: 0.8rem !important;
+}
+
+// 6. Registered Grid Registry Elements
+.saved-team-node {
+  padding: 1rem;
+  border: 1px solid $card-border-subtle;
+  background-color: #f8fafc;
+  border-radius: 8px;
+
+  .saved-team-title {
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 0.25rem 0;
+  }
+
+  .badge-slots-counter {
+    display: inline-block;
+    background-color: #e2e8f0;
+    color: #475569;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+}
+
+// 7. Right Column System Match Ledger Logs Nav List Configuration
+.battle-logs-list {
+  padding-top: 0 !important;
+
+  .battle-log-item-wrapper {
+    height: auto !important;
+    padding: 1rem 1.25rem !important;
+
+    ::v-deep .mdc-list-item__content {
+      width: 100%;
+    }
+  }
+
+  .battle-log-item-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+
+    .opponent-title {
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0 0 0.25rem 0;
+    }
+    .timestamp-label {
+      color: $text-slate-muted;
+      font-family: monospace;
+      font-size: 0.725rem;
+      display: block;
+      margin-bottom: 0.35rem;
+    }
+    .score-matrix-tag {
+      font-size: 0.725rem;
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid $card-border-subtle;
+      padding: 2px 6px;
+      font-family: monospace;
+      border-radius: 4px;
+    }
+  }
+}
+
+.battle-badge-win {
+  background-color: #dcfce7;
+  color: #15803d;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.battle-badge-loss {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.empty-state-box {
+  text-align: center;
+  color: $text-slate-muted;
+  padding: 2rem 1rem;
+  font-size: 0.85rem;
+}
+
+// Loading Channels Overlay Matrix State Block Container View Layout
+.layout-sync-loader-wrapper {
+  text-align: center;
+  padding: 4rem 2rem;
+  background-color: #ffffff;
+  border: 1px solid $card-border-subtle;
+  border-radius: 12px;
+  margin: 4rem auto;
+  max-width: 460px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+
+  .loader-primary-text {
+    color: #0f172a;
+    font-weight: 700;
+    margin-top: 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .loader-secondary-text {
+    color: $text-slate-muted;
+    font-size: 0.8rem;
+    margin-bottom: 0;
+  }
+}
+
+// Core utility animations rules
+.animation-slide {
+  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}

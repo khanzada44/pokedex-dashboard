@@ -9,6 +9,7 @@ import { PokemonStore } from '../../state/pokemon.store';
 import { Observable } from 'rxjs';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import Chart from 'chart.js/auto';
+import { TrainerDashboardStore } from '../../state/trainer.store'
 
 @Component({
   selector: 'app-pokedex',
@@ -22,6 +23,7 @@ export class Pokedex implements OnInit, AfterViewInit {
   private sanitizer = inject(DomSanitizer);
   private cdr = inject(ChangeDetectorRef);
   public pokemonStore = inject(PokemonStore);
+  private trainerStore = inject(TrainerDashboardStore);
 
   isDetailsPanelOpen = signal<boolean>(false);
   pageSize = 10;
@@ -175,8 +177,18 @@ export class Pokedex implements OnInit, AfterViewInit {
   }
   isAllSelected(rows: any[]): boolean { return this.selection.selected.length === rows.length; }
   masterToggle(rows: any[]): void { this.isAllSelected(rows) ? this.selection.clear() : rows.forEach(r => this.selection.select(r)); }
-  bulkAddToTeam(): void { this.selection.clear(); }
   resetFilters(): void { this.pokemonStore.reset(); this.selection.clear(); }
   getStat(stats: any[], name: string): number { return stats?.find(s => s?.pokemon_v2_stat?.name === name)?.base_stat ?? 0; }
   getTotal(stats: any[]): number { return stats?.reduce((sum, s) => sum + (s?.base_stat ?? 0), 0) ?? 0; }
+
+bulkAddToTeam(): void {
+  const selectedIds = this.selection.selected.map(p => p.id);
+  if (selectedIds.length === 0) {
+    console.log("Koi Pokémon select nahi kiya bhai!");
+    return;
+  }
+  const activeTeamId = 1;
+  this.trainerStore.addPokemonToTeam(activeTeamId, selectedIds);
+  this.selection.clear();
+}
 }

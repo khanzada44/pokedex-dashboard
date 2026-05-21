@@ -14,8 +14,14 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSortModule } from '@angular/material/sort';
 import { MatSort } from '@angular/material/sort';
 import { MatSliderModule } from '@angular/material/slider';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 const material = [
   MatButtonModule,
+  MatButtonToggleModule,
+  MatSelectModule,
+  MatSlideToggleModule,
   MatSliderModule,
   MatSort,
   MatSortModule,

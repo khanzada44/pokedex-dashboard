@@ -55,7 +55,7 @@ export const GET_POKEMONS_QUERY = `
   }
 `;
 
-// 2. Doosri Query: Single Pokémon ki Abilities laane ke liye
+
 export const GET_POKEMON_DETAILS_QUERY = `
   query GetAbilities($pokemonId: Int!) {
     pokemon_v2_pokemon_by_pk(id: $pokemonId) {
@@ -71,6 +71,44 @@ export const GET_POKEMON_DETAILS_QUERY = `
           }
         }
       }
+    }
+  }
+`;
+export const UPDATE_TEAM_MUTATION =`
+  mutation UpdateTeam($id: ID!, $pokemon_ids: [Int!]!) {
+    updateTeam(id: $id, pokemon_ids: $pokemon_ids) {
+      id
+      name
+      pokemon_ids
+    }
+  }
+`;
+export const GET_TRAINER_DATA_QUERY = `
+  query GetTrainerData {
+    allTrainers {
+      id
+      name
+      badge_count
+      region
+      avatar_url
+      rank
+    }
+    allTeams {
+      id
+      trainer_id
+      name
+      pokemon_ids
+      created_at
+    }
+    allBattles {
+      id
+      trainer_id
+      opponent_name
+      team_id
+      result
+      date
+      score_trainer
+      score_opponent
     }
   }
 `;
