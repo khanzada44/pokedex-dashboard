@@ -1,0 +1,40 @@
+.battle-container {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    
+    @media (max-width: 960px) { grid-template-columns: 1fr; }
+  }
+}
+
+.mat-mdc-card {
+  height: 100%;
+}
+
+.terminal-box {
+  background: #1a1a1a;
+  color: #00ff41;
+  padding: 16px;
+  font-family: 'Courier New', Courier, monospace;
+  height: 400px;
+  overflow-y: auto;
+  border-radius: 4px;
+
+  .log-entry {
+    margin-bottom: 8px;
+    border-bottom: 1px solid #333;
+    
+    &.success { color: #8bc34a; }
+    &.danger { color: #f44336; }
+    &.info { color: #2196f3; }
+  }
+}
+
+.win-badge { background-color: #e8f5e9; color: #2e7d32; }
+.loss-badge { background-color: #ffebee; color: #c62828; }

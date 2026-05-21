@@ -15,7 +15,7 @@ export const routes: Routes = [
         component: Trainer,
     },
     {
-        path: 'battles',
+        path: 'battles-log',
         component: BattleLog,
     }
 ];

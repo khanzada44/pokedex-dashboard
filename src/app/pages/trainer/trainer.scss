@@ -1,6 +1,4 @@
-// =========================================================================
-// ANGULAR MATERIAL MINIMALIST EXECUTIVE THEMATIC HOOKS CONFIGURATION
-// =========================================================================
+
 $slate-dark-gradient: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
 $executive-light-bg: #f8fafc;
 $card-border-subtle: #e2e8f0;
@@ -273,11 +271,17 @@ $text-slate-muted: #64748b;
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08) !important;
     transform: translateY(-2px);
   }
-
+.parent-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;     
+  min-height: 100%;        
+}
   .close-slot-btn {
     position: absolute;
     top: 6px;
-    end: 6px;
+    bleed: 6px;
     background: transparent;
     border: none;
     color: #94a3b8;
@@ -425,7 +429,14 @@ $text-slate-muted: #64748b;
 }
 
 // Loading Channels Overlay Matrix State Block Container View Layout
+
+// Loading Channels Overlay Matrix State Block Container View Layout
 .layout-sync-loader-wrapper {
+  display: flex;             // Flexbox enable karein
+  flex-direction: column;    // Items ko upar se neeche vertical line mein rakhne ke liye
+  align-items: center;       // Horizontal center alignment ke liye
+  justify-content: center;   // Vertical spacing balance karne ke liye
+  
   text-align: center;
   padding: 4rem 2rem;
   background-color: #ffffff;
@@ -434,6 +445,11 @@ $text-slate-muted: #64748b;
   margin: 4rem auto;
   max-width: 460px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+
+  // Spinner wrapper or mat-spinner positioning fix
+  mat-spinner {
+    margin: 0 auto 1rem auto; // Default margin center fallback
+  }
 
   .loader-primary-text {
     color: #0f172a;

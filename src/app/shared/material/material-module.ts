@@ -7,7 +7,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { MatListModule } from '@angular/material/list'; 
+import { MatListModule } from '@angular/material/list';
 import { MatSelect, MatOption } from "@angular/material/select";
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -17,6 +17,8 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatChipsModule } from '@angular/material/chips';
+import { CommonModule } from '@angular/common';
 const material = [
   MatButtonModule,
   MatButtonToggleModule,
@@ -36,11 +38,13 @@ const material = [
   MatListModule,
   MatSelect,
   MatOption,
-  MatCheckboxModule
+  MatCheckboxModule,
+  CommonModule,
+  MatChipsModule
 ];
 
 @NgModule({
   imports: material,
   exports: material
 })
-export class MaterialModule {}
+export class MaterialModule { }

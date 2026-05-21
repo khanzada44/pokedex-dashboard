@@ -73,14 +73,19 @@ export class Trainer implements OnInit {
     });
   }
 
-  ngOnInit(): void {
+ngOnInit(): void {
+  // SSR error se bachne ke liye browser check
+  if (typeof window !== 'undefined' && window.localStorage) {
     const cachedTrainerId = localStorage.getItem('active_trainer_id');
     if (cachedTrainerId) {
       this.store.setTrainerId(parseInt(cachedTrainerId, 10));
     }
-    this.store.loadDashboardData();
-    this.buildTeamReactiveForm();
   }
+
+  // Yeh code server aur browser dono par bina kisi error ke chalega
+  this.store.loadDashboardData();
+  this.buildTeamReactiveForm();
+}
 
   private buildTeamReactiveForm(): void {
     this.teamForm = this.fb.group({
