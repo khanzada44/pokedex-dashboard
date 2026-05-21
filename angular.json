@@ -2,7 +2,8 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "packageManager": "npm"
+    "packageManager": "npm",
+    "analytics": "c29d828b-ecd6-41d9-a62f-89f62c487e15"
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -24,11 +25,10 @@
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
+              "src/favicon.ico",
+              "src/assets"
             ],
+                        
             "styles": [
               "src/styles.scss"
             ],

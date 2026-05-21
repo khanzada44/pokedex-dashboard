@@ -1,0 +1,141 @@
+<div class="dashboard-layout">
+  <app-sidebar></app-sidebar>
+
+  <div class="main-content">
+    <div class="page-container">
+
+      <!-- FILTER BAR -->
+      <div class="filter-bar">
+
+        <mat-form-field appearance="outline">
+          <mat-label>Search Pokémon</mat-label>
+          <input matInput (input)="onSearch($event)" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Type</mat-label>
+          <mat-select (selectionChange)="onTypeFilter($event.value)">
+            <mat-option value="">All</mat-option>
+            <mat-option value="fire">Fire</mat-option>
+            <mat-option value="water">Water</mat-option>
+            <mat-option value="grass">Grass</mat-option>
+            <mat-option value="electric">Electric</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-stroked-button color="warn" (click)="resetFilters()">
+          Reset
+        </button>
+
+      </div>
+
+      <!-- TABLE -->
+      <div class="table-container">
+
+        <ng-container *ngIf="vm$ | async as vm; else loading">
+
+          <ng-container *ngIf="(vm?.pokemons?.length ?? 0) > 0; else noData">
+
+            <table mat-table [dataSource]="vm.pokemons" matSort>
+
+              <!-- IMAGE -->
+              <ng-container matColumnDef="image">
+                <th mat-header-cell *matHeaderCellDef>Image</th>
+                <td mat-cell *matCellDef="let p">
+                  <img width="60"
+                    [src]="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + p.id + '.png'">
+                </td>
+              </ng-container>
+
+              <!-- NAME -->
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+                <td mat-cell *matCellDef="let p">
+                  {{ p.name | titlecase }}
+                </td>
+              </ng-container>
+
+              <!-- TYPES -->
+              <ng-container matColumnDef="types">
+                <th mat-header-cell *matHeaderCellDef>Types</th>
+                <td mat-cell *matCellDef="let p">
+                  <span *ngFor="let t of p.pokemon_v2_pokemontypes">
+                    {{ t.pokemon_v2_type.name }}
+                  </span>
+                </td>
+              </ng-container>
+
+              <!-- HP -->
+              <ng-container matColumnDef="hp">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>HP</th>
+                <td mat-cell *matCellDef="let p">
+                  {{ getStat(p.pokemon_v2_pokemonstats, 'hp') }}
+                </td>
+              </ng-container>
+
+              <!-- ATTACK -->
+              <ng-container matColumnDef="attack">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Attack</th>
+                <td mat-cell *matCellDef="let p">
+                  {{ getStat(p.pokemon_v2_pokemonstats, 'attack') }}
+                </td>
+              </ng-container>
+
+              <!-- DEFENSE -->
+              <ng-container matColumnDef="defense">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Defense</th>
+                <td mat-cell *matCellDef="let p">
+                  {{ getStat(p.pokemon_v2_pokemonstats, 'defense') }}
+                </td>
+              </ng-container>
+
+              <!-- TOTAL -->
+              <ng-container matColumnDef="total">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Total</th>
+                <td mat-cell *matCellDef="let p">
+                  {{ getTotal(p.pokemon_v2_pokemonstats) }}
+                </td>
+              </ng-container>
+
+              <!-- ROWS -->
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+            </table>
+
+          </ng-container>
+
+          <ng-template #noData>
+            <div class="no-data">
+              No Pokémon Found 
+            </div>
+          </ng-template>
+
+        </ng-container>
+
+        <!-- LOADING -->
+        <ng-template #loading>
+          <div class="loading">
+            Loading Pokémon...
+          </div>
+        </ng-template>
+
+      </div>
+
+<ng-container *ngIf="vm$ | async as vm">
+
+  <!-- TABLE HERE -->
+
+  <mat-paginator
+    [length]="vm.total || 0"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="pageSizeOptions"
+    showFirstLastButtons
+    (page)="onPageChange($event)">
+  </mat-paginator>
+
+</ng-container>
+
+    </div>
+  </div>
+</div>
