@@ -37,12 +37,15 @@ export const GET_TRAINER_DASHBOARD = {
 /**
  * GraphQL Mutation: Nayi team register karne ke liye.
  */
+// Trainer.queries.ts
+// Trainer.queries.ts
 export const CREATE_NEW_TEAM = {
   query: `
-    mutation AddNewTeam($id: ID!, $trainer_id: Int!, $name: String!, $pokemon_ids: [Int!]!, $created_at: String!) {
-      createTeam(id: $id, trainer_id: $trainer_id, name: $name, pokemon_ids: $pokemon_ids, created_at: $created_at) {
+    mutation CreateTeam($name: String!, $trainer_id: ID!, $pokemon_ids: [Int]!, $created_at: String!) {
+      createTeam(name: $name, trainer_id: $trainer_id, pokemon_ids: $pokemon_ids, created_at: $created_at) {
         id
         name
+        pokemon_ids
       }
     }
   `

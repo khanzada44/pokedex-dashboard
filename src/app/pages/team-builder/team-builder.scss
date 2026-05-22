@@ -1,0 +1,112 @@
+.builder-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f1f5f9;
+}
+
+.builder-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 24px;
+}
+
+.pokedex-area {
+  background: white;
+  padding: 24px;
+  border-radius: 20px;
+}
+
+.pokedex-list {
+  height: 70vh;
+  overflow: auto;
+}
+
+.pokemon-card {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 10px;
+  cursor: grab;
+}
+
+.sidebar-panel {
+  background: white;
+  padding: 24px;
+  border-radius: 20px;
+  position: sticky;
+  top: 20px;
+}
+
+.slots-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.slot {
+  aspect-ratio: 1;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.analysis-section {
+  margin-top: 16px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 12px;
+}
+
+.full-width { width: 100%; }
+.builder-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f1f5f9;
+}
+
+.builder-content {
+  flex: 1;
+  padding: 24px;
+}
+
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 24px;
+}
+
+.drop-zone {
+  min-height: 400px;
+  background: white;
+  border: 2px dashed #ccc;
+  padding: 16px;
+  border-radius: 10px;
+}
+
+.pokemon-card {
+  background: #fff;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  cursor: grab;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.pokemon-card img {
+  width: 60px;
+  height: 60px;
+}
+
+.team-zone {
+  background: #f8fafc;
+}

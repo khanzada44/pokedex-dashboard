@@ -1,1 +1,112 @@
-<p>team-builder works!</p>
+<div class="builder-layout">
+
+  <app-sidebar></app-sidebar>
+
+  <main class="builder-content">
+
+    <div class="main-grid">
+
+      <!-- POKEDEX -->
+      <section class="pokedex-area">
+
+        <h2>Pokédex</h2>
+
+        <mat-form-field class="full-width">
+          <mat-label>Search Pokémon</mat-label>
+          <input matInput (keyup)="applyFilter($event)">
+        </mat-form-field>
+
+        <div class="pokemon-count">
+          Total: {{ allPokemon.length }}
+        </div>
+
+        <cdk-virtual-scroll-viewport
+          class="pokedex-list"
+          itemSize="90">
+
+          <div
+            class="pokemon-card"
+            *cdkVirtualFor="let p of allPokemon"
+            cdkDrag
+            [cdkDragData]="p">
+
+            <img [src]="p.sprites?.front_default" />
+
+            <div>
+              <strong>{{ p.name | titlecase }}</strong>
+            </div>
+
+          </div>
+
+        </cdk-virtual-scroll-viewport>
+
+      </section>
+
+      <!-- TEAM BUILDER -->
+      <aside class="sidebar-panel">
+
+        <form [formGroup]="teamForm" (ngSubmit)="saveTeam()">
+
+          <h2>Team Builder</h2>
+
+          <mat-form-field class="full-width">
+            <mat-label>Team Name</mat-label>
+            <input matInput formControlName="name">
+          </mat-form-field>
+
+          <div
+            class="slots-container"
+            cdkDropList
+            [cdkDropListData]="selectedPokemon()"
+            (cdkDropListDropped)="onDrop($event)">
+
+            <div class="slot" *ngFor="let i of [0,1,2,3,4,5]">
+
+              <ng-container *ngIf="selectedPokemon()[i]; else empty">
+
+                <div class="selected-card">
+                  <span>
+                    {{ selectedPokemon()[i].name }}
+                  </span>
+
+                  <button type="button"
+                          (click)="removePokemon(i)">
+                    ×
+                  </button>
+                </div>
+
+              </ng-container>
+
+              <ng-template #empty>
+                <div class="empty-slot">
+                  Empty
+                </div>
+              </ng-template>
+
+            </div>
+
+          </div>
+
+          <div class="analysis-section"
+               *ngIf="selectedPokemon().length">
+
+            <strong>
+              Power: {{ calculateTotalPower() }}
+            </strong>
+
+          </div>
+
+          <button mat-raised-button color="primary"
+                  type="submit">
+            Save Team
+          </button>
+
+        </form>
+
+      </aside>
+
+    </div>
+
+  </main>
+
+</div>

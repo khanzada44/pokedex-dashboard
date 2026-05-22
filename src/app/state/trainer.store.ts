@@ -1,4 +1,4 @@
-import { Injectable, inject, DestroyRef } from '@angular/core';
+import { Injectable, inject, DestroyRef, signal, computed } from '@angular/core';
 import { BehaviorSubject, throwError, interval } from 'rxjs';
 import { tap, catchError, retry, switchMap, map } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -34,6 +34,12 @@ const initialState: LocalTrainerState = {
   providedIn: 'root'
 })
 export class TrainerDashboardStore {
+  trainer() {
+    throw new Error('Method not implemented.');
+  }
+  teams = signal<any[]>([]); // Saved teams
+  selectedPokemon = signal<any[]>([])
+  allTeams = computed(() => this.teams())
   private trainerService = inject(TrainerService);
   private battleService = inject(BattleGraphqlService);
   private destroyRef = inject(DestroyRef);

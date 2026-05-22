@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { GET_POKEMONS_QUERY, GET_POKEMON_DETAILS_QUERY } from '../graphql/queries/pokemon.queries';
 
 @Injectable({
@@ -31,4 +31,27 @@ export class PokemonService {
             }
         });
     }
+    fetchAllPokemon(): Observable<any[]> {
+  const query = `
+    query GetPokemon {
+      pokemon_v2_pokemon(limit: 100) {
+        id
+        name
+        pokemon_v2_pokemonsprites {
+          sprites
+        }
+      }
+    }
+  `;
+  
+  // Apne existing GraphQL client (Apollo ya direct HTTP) ka use karein
+  return this.http.post<any>('https://beta.pokeapi.co/graphql/v1beta', { query }).pipe(
+    map(res => res.data.pokemon_v2_pokemon.map((p: any) => ({
+      ...p,
+      sprites: typeof p.pokemon_v2_pokemonsprites[0].sprites === 'string' 
+           ? JSON.parse(p.pokemon_v2_pokemonsprites[0].sprites) 
+           : p.pokemon_v2_pokemonsprites[0].sprites // JSON format fix
+    })))
+  );
+}
 }
