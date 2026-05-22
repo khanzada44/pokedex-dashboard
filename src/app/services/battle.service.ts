@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, interval, switchMap, startWith, catchError, of, BehaviorSubject, merge, scan } from 'rxjs';
 import { Battle, BattleLogEntry } from '../models/battle.model';
-import { GET_BATTLE_DATA, LOG_BATTLE_MUTATION } from '../graphql/queries/battle-log.queries';
+import { CREATE_BATTLE_MUTATION, GET_BATTLE_DATA, GET_BATTLE_LOGS_QUERY, GET_BATTLES_QUERY, LOG_BATTLE_MUTATION } from '../graphql/queries/battle-log.queries';
 
 @Injectable({
     providedIn: 'root'
@@ -10,7 +10,8 @@ import { GET_BATTLE_DATA, LOG_BATTLE_MUTATION } from '../graphql/queries/battle-
 export class BattleGraphqlService {
     private readonly http = inject(HttpClient);
     private readonly url = 'http://localhost:4000';
-    
+    private api = 'http://localhost:4000/graphql';
+
     // Manual logs add karne ke liye subject
     private manualLogsSubject = new BehaviorSubject<BattleLogEntry[]>([]);
 
@@ -73,5 +74,21 @@ export class BattleGraphqlService {
             severity: 'info'
         };
         this.manualLogsSubject.next([newLog]); // Sirf naya log push karen
+    }
+
+    public getBattles(): Observable<any> {
+        return this.http.post(this.api, { query: GET_BATTLES_QUERY }).pipe(
+            map((res: any) => res.data.allBattles)
+        );
+    }
+
+    public getLatestLogs(): Observable<any> {
+        return this.http.post(this.api, { query: GET_BATTLE_LOGS_QUERY }).pipe(
+            map((res: any) => res.data.allBattle_logs)
+        );
+    }
+
+    public createBattle(b: any): Observable<any> {
+        return this.http.post(this.api, { query: CREATE_BATTLE_MUTATION(b) });
     }
 }

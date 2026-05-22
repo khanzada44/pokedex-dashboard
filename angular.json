@@ -28,7 +28,6 @@
               "src/favicon.ico",
               "src/assets"
             ],
-                        
             "styles": [
               "src/styles.scss"
             ],
@@ -67,6 +66,9 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "buildTarget": "pokedex-dashboard:build"
+          },
           "configurations": {
             "production": {
               "buildTarget": "pokedex-dashboard:build:production"

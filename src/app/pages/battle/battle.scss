@@ -1,0 +1,41 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+
+  .stats-cards {
+    display: flex;
+    gap: 10px;
+    mat-card { padding: 20px; flex: 1; text-align: center; font-weight: bold; }
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+  }
+
+  .terminal-box {
+    background: #1e1e1e;
+    color: #0f0;
+    padding: 15px;
+    height: 300px;
+    overflow-y: auto;
+    font-family: 'Courier New', monospace;
+  }
+}
+.win { color: green; font-weight: bold; }
+.loss { color: red; font-weight: bold; }
+.terminal-box { 
+  background: #000; 
+  color: #0f0; 
+  padding: 15px; 
+  margin-top: 20px; 
+  font-family: monospace; 
+}
+.stats-cards { 
+  display: flex; 
+  gap: 10px; 
+  margin-bottom: 20px; 
+}
