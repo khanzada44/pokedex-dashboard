@@ -14,7 +14,7 @@ export const GET_BATTLE_DATA = `
       score_trainer
       score_opponent
     }
-    allBattleLogs {
+    allLogs {
       id
       battle_id
       timestamp
