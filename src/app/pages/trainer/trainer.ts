@@ -68,6 +68,7 @@ export class Trainer implements OnInit {
     effect(() => {
       const trainer = this.activeTrainer();
       if (trainer) {
+        
         localStorage.setItem('active_trainer_id', trainer.id.toString());
       }
     });
@@ -75,13 +76,13 @@ export class Trainer implements OnInit {
 
 ngOnInit(): void {
   // SSR error se bachne ke liye browser check
-  if (typeof window !== 'undefined' && window.localStorage) {
-    const cachedTrainerId = localStorage.getItem('active_trainer_id');
-    if (cachedTrainerId) {
-      this.store.setTrainerId(parseInt(cachedTrainerId, 10));
-    }
-  }
+if (typeof window !== 'undefined') {
+  const cachedTrainerId = window.localStorage.getItem('active_trainer_id');
 
+  if (cachedTrainerId) {
+    this.store.setTrainerId(parseInt(cachedTrainerId, 10));
+  }
+}
   // Yeh code server aur browser dono par bina kisi error ke chalega
   this.store.loadDashboardData();
   this.buildTeamReactiveForm();

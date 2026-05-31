@@ -156,10 +156,12 @@ export class TeamBuilder implements OnInit {
      * Persist trainer ID to localStorage.
      */
     effect(() => {
-      localStorage.setItem(
-        'trainerId',
-        this.currentTrainerId().toString()
-      );
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(
+            'trainerId',
+            this.currentTrainerId().toString()
+          );
+        }
     });
 
     /**

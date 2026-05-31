@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
 import { GET_TRAINER_DATA_QUERY, UPDATE_TEAM_MUTATION } from '../graphql/queries/pokemon.queries';
-import { GET_TRAINER_DASHBOARD, CREATE_NEW_TEAM } from '../graphql/queries/Trainer.queries';
+import { GET_TRAINER_DASHBOARD, CREATE_NEW_TEAM } from '../graphql/queries/trainer.queries';
 
 @Injectable({
   providedIn: 'root'
