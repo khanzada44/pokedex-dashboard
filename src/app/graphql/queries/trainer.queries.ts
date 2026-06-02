@@ -1,7 +1,3 @@
-/**
- * GraphQL Query: Dashboard ka poora data (Trainers, Teams, Battles) 
- * ek sath fetch karne ke liye.
- */
 export const GET_TRAINER_DASHBOARD = {
   query: `
     query GetTrainerDashboard {
@@ -34,11 +30,6 @@ export const GET_TRAINER_DASHBOARD = {
   `
 };
 
-/**
- * GraphQL Mutation: Nayi team register karne ke liye.
- */
-// Trainer.queries.ts
-// Trainer.queries.ts
 export const CREATE_NEW_TEAM = {
   query: `
     mutation CreateTeam($name: String!, $trainer_id: ID!, $pokemon_ids: [Int]!, $created_at: String!) {

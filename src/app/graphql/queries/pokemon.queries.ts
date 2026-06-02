@@ -1,5 +1,3 @@
-import { gql } from 'apollo-angular';
-
 export const GET_POKEMONS_QUERY = `
   query GetPokemon(
     $limit: Int,

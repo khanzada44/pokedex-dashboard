@@ -1,7 +1,3 @@
-/**
- * GraphQL Query to fetch all historical battle records 
- * and real-time battle event logs from the local mock server.
- */
 export const GET_BATTLE_DATA = `
   query GetBattleData {
     allBattles {
@@ -24,9 +20,6 @@ export const GET_BATTLE_DATA = `
   }
 `;
 
-/**
- * GraphQL Mutation to insert a new battle result into the local db.
- */
 export const LOG_BATTLE_MUTATION = `
   mutation CreateBattle(
     $trainer_id: ID!, 

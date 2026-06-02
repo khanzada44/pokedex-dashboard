@@ -1,52 +1,15 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  computed,
-  effect,
-  inject,
-  OnInit,
-  signal
-} from '@angular/core';
-
-import {
-  AbstractControl,
-  AsyncValidatorFn,
-  FormArray,
-  FormBuilder,
-  ReactiveFormsModule,
-  ValidationErrors,
-  Validators
-} from '@angular/forms';
-
+import {ChangeDetectionStrategy, Component, DestroyRef,computed, effect, inject, OnInit, signal} from '@angular/core';
+import {AbstractControl,AsyncValidatorFn,FormArray, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators} from '@angular/forms';
 import { CommonModule } from '@angular/common';
-
-import {
-  CdkDragDrop,
-  DragDropModule,
-  moveItemInArray,
-  transferArrayItem
-} from '@angular/cdk/drag-drop';
-
+import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-
-import {
-  debounceTime,
-  delay,
-  map,
-  Observable,
-  of,
-  retry
-} from 'rxjs';
-
+import { debounceTime, delay, map, Observable, of,retry} from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
 import { MaterialModule } from '../../shared/material/material-module';
 import { TrainerDashboardStore } from '../../state/trainer.store';
 import { TrainerService } from '../../services/trainer.service';
 import { PokemonService } from '../../services/pokemon.service';
 import { Sidebar } from '../../layout/sidebar/sidebar';
-
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
@@ -66,56 +29,20 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 })
 export class TeamBuilder implements OnInit {
 
-  /**
-   * Full Pokémon list from API.
-   */
   allPokemon: any[] = [];
-
-  /**
-   * Original cached Pokémon list.
-   */
   originalPokemonList: any[] = [];
-
-  /**
-   * Loading state signal.
-   */
   loading = signal(false);
-
-  /**
-   * Current active tab.
-   */
   activeTab = signal('builder');
-
-  /**
-   * Sidebar collapse state.
-   */
   sidebarCollapsed = signal(false);
-
-  /**
-   * Current trainer ID.
-   */
   currentTrainerId = signal(1);
-
   private snackBar = inject(MatSnackBar);
-
   private fb = inject(FormBuilder);
-
   private destroyRef = inject(DestroyRef);
-
   public store = inject(TrainerDashboardStore);
-
   private service = inject(TrainerService);
-
   private pokemonService = inject(PokemonService);
-
-  /**
-   * Selected Pokémon signal from store.
-   */
   selectedPokemon = this.store.selectedPokemon;
 
-  /**
-   * Team Builder Reactive Form.
-   */
   teamForm = this.fb.group({
     name: [
       '',
@@ -128,15 +55,11 @@ export class TeamBuilder implements OnInit {
     ],
 
     competitiveMode: [false],
-
     tier: ['OU'],
-
     pokemonConfigs: this.fb.array([])
   });
 
-  /**
-   * Computed team statistics.
-   */
+
   teamStats = computed(() => {
     const squad = this.selectedPokemon();
 
@@ -152,9 +75,6 @@ export class TeamBuilder implements OnInit {
 
   constructor() {
 
-    /**
-     * Persist trainer ID to localStorage.
-     */
     effect(() => {
         if (typeof window !== 'undefined') {
           localStorage.setItem(
@@ -164,9 +84,6 @@ export class TeamBuilder implements OnInit {
         }
     });
 
-    /**
-     * Analytics logging effect.
-     */
     effect(() => {
       console.log(
         'Viewed Pokémon:',
@@ -175,19 +92,12 @@ export class TeamBuilder implements OnInit {
     });
   }
 
-  /**
-   * Initializes component data.
-   */
+
   ngOnInit(): void {
-
     this.fetchTeams();
-
     this.fetchPokemon();
   }
 
-  /**
-   * Fetches teams from local GraphQL server.
-   */
   fetchTeams(): void {
 
     this.service.fetchTeams()
@@ -206,9 +116,7 @@ export class TeamBuilder implements OnInit {
 noReturnPredicate(): boolean {
   return false;
 }
-  /**
-   * Fetches Pokémon list with retry logic.
-   */
+
   fetchPokemon(): void {
 
     this.loading.set(true);
@@ -245,9 +153,7 @@ noReturnPredicate(): boolean {
       });
   }
 
-  /**
-   * Pokémon config FormArray.
-   */
+
   get pokemonConfigs(): FormArray {
 
     return this.teamForm.get(
@@ -255,23 +161,15 @@ noReturnPredicate(): boolean {
     ) as FormArray;
   }
 
-  /**
-   * Async validator for unique team names.
-   */
-  uniqueTeamValidator(): AsyncValidatorFn {
 
+  uniqueTeamValidator(): AsyncValidatorFn {
     return (
       control: AbstractControl
     ): Observable<ValidationErrors | null> => {
-
       return of(control.value).pipe(
-
         debounceTime(300),
-
         delay(500),
-
         map((name: string) => {
-
           const exists = this.store
             .allTeams()
             .some(
@@ -288,9 +186,6 @@ noReturnPredicate(): boolean {
     };
   }
 
-  /**
-   * Calculates total team power.
-   */
   calculateTotalPower(): number {
 
     return this.selectedPokemon()
@@ -300,9 +195,6 @@ noReturnPredicate(): boolean {
       );
   }
 
-  /**
-   * Calculates unique type coverage.
-   */
   calculateCoverage(): string[] {
 
     const types = this.selectedPokemon()
@@ -311,9 +203,6 @@ noReturnPredicate(): boolean {
     return Array.from(new Set(types));
   }
 
-  /**
-   * Loads an existing team.
-   */
   loadTeam(team: any): void {
 
     this.teamForm.patchValue({
@@ -329,10 +218,6 @@ noReturnPredicate(): boolean {
 
     this.selectedPokemon.set(loadedPokemon);
   }
-
-  /**
-   * Handles drag-drop events.
-   */
 
 onDrop(event: CdkDragDrop<any[]>): void {
   if (event.previousContainer === event.container) {
@@ -352,9 +237,6 @@ onDrop(event: CdkDragDrop<any[]>): void {
     this.selectedPokemon.set(currentList);
   }
 }
-  /**
-   * Removes Pokémon from squad.
-   */
   removePokemon(index: number): void {
 
     this.selectedPokemon.update(
@@ -362,9 +244,6 @@ onDrop(event: CdkDragDrop<any[]>): void {
     );
   }
 
-  /**
-   * Saves team with optimistic updates.
-   */
   saveTeam(): void {
 
     if (
@@ -386,9 +265,6 @@ onDrop(event: CdkDragDrop<any[]>): void {
       created_at: new Date().toISOString()
     };
 
-    /**
-     * Optimistic UI update.
-     */
     const tempTeam = {
       id: Date.now(),
       ...payload
@@ -412,10 +288,6 @@ onDrop(event: CdkDragDrop<any[]>): void {
         },
 
         error: () => {
-
-          /**
-           * Rollback if API fails.
-           */
           this.store.teams.update(
             current =>
               current.filter(
@@ -432,9 +304,6 @@ onDrop(event: CdkDragDrop<any[]>): void {
       });
   }
 
-  /**
-   * Filters Pokédex list.
-   */
   applyFilter(event: Event): void {
 
     const value = (
@@ -450,9 +319,6 @@ onDrop(event: CdkDragDrop<any[]>): void {
       );
   }
 
-  /**
-   * Generates type distribution.
-   */
   private getDistribution(
     squad: any[]
   ): Record<string, number> {
