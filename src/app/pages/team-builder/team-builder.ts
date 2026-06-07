@@ -235,6 +235,8 @@ onDrop(event: CdkDragDrop<any[]>): void {
     }
     
     this.selectedPokemon.set(currentList);
+    console.log('testing',this.selectedPokemon.set(currentList));
+    
   }
 }
   removePokemon(index: number): void {
