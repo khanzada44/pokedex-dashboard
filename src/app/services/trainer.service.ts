@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {  Observable } from 'rxjs';
 import { GET_TRAINER_DATA_QUERY } from '../graphql/queries/pokemon.queries';
-import { GET_TRAINER_DASHBOARD, CREATE_NEW_TEAM } from '../graphql/queries/trainer.queries';
+import { GET_TRAINER_DASHBOARD, GET_BATTLE_LOGS } from '../graphql/queries/trainer.queries';
 import { UPDATE_TEAM_MUTATION } from '../graphql/mutations/pokemon.mutation';
 
 @Injectable({
@@ -31,7 +31,7 @@ export class TrainerService {
 
   createNewTeam(teamPayload: any): Observable<any> {
     return this.http.post<any>(this.apiUrl, {
-      query: CREATE_NEW_TEAM.query,
+      query: GET_BATTLE_LOGS.query,
       variables: teamPayload
     });
   }
