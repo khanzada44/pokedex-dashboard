@@ -137,8 +137,8 @@
               <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
             </table>
 
-            <mat-paginator [length]="vm?.total || 0" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions"
-              showFirstLastButtons (page)="onPageChange($event)">
+            <mat-paginator [length]="vm?.total || 0" [pageSize]="vm?.pageSize || pageSize" [pageIndex]="vm?.page || 0"
+              [pageSizeOptions]="pageSizeOptions" showFirstLastButtons (page)="onPageChange($event)">
             </mat-paginator>
 
           </ng-container>

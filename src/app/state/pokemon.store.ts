@@ -22,7 +22,7 @@ export class PokemonStore {
   private page$ = new BehaviorSubject<number>(0);
   private sortField$ = new BehaviorSubject<string>('id');
   private sortDir$ = new BehaviorSubject<string>('asc');
-  private pageSize = 10;
+  private pageSize$ = new BehaviorSubject<number>(10);
 
   public selectedPokemonId$ = this.selectedPokemonIdSubject.asObservable();
   public readonly pokemon$ = this._pokemon$.asObservable();
@@ -39,7 +39,7 @@ export class PokemonStore {
     
     this.pokemonService.getPokemonDetails(id).subscribe({
       next: (res) => {
-        const details = res?.data?.pokemon_v2_pokemon_by_pk;
+        const details = res?.pokemon_v2_pokemon_by_pk;
         console.log('Fetched details for Pokémon ID:', id, details);
         
         if (details) {
@@ -58,24 +58,73 @@ export class PokemonStore {
     });
   }
 
-  vm$ = combineLatest([
+  // vm$ = combineLatest([
+  //   this.search$,
+  //   this.type$,
+  //   this.minStats$,
+  //   this.maxStats$,
+  //   this.page$,
+  //   this.sortField$,
+  //   this.sortDir$
+  // ]).pipe(
+  //   debounceTime(300),
+  //   switchMap(([search, type, minStats, maxStats, page, sortField, sortDir]) => {
+  //     const limit = this.pageSize;
+  //     const offset = page * this.pageSize;
+
+  //     return this.pokemonService.getPokemons(limit, offset, search, type).pipe(
+  //       map((res: any) => {
+  //         const data = res?.pokemon_v2_pokemon || [];
+  //         const serverTotalCount = res?.pokemon_v2_pokemon_aggregate?.aggregate?.count ?? 0;
+
+  //         let filtered = [...data];
+  //         filtered = filtered.filter((p: any) => {
+  //           const totalStat = this.getTotal(p.pokemon_v2_pokemonstats);
+  //           return totalStat >= minStats && totalStat <= maxStats;
+  //         });
+
+  //         const isAsc = sortDir === 'asc';
+  //         filtered = filtered.sort((a: any, b: any) => {
+  //           switch (sortField) {
+  //             case 'name': return this.compare(a.name, b.name, isAsc);
+  //             case 'id': return this.compare(a.id, b.id, isAsc);
+  //             case 'height': return this.compare(a.height, b.height, isAsc);
+  //             case 'weight': return this.compare(a.weight, b.weight, isAsc);
+  //             default: return 0;
+  //           }
+  //         });
+
+  //         return {
+  //           pokemons: filtered,
+  //           total: serverTotalCount,
+  //           page,
+  //           pageSize: this.pageSize,
+  //           minStats,
+  //           maxStats
+  //         };
+  //       })
+  //     );
+  //   })
+  // );
+vm$ = combineLatest([
     this.search$,
     this.type$,
     this.minStats$,
     this.maxStats$,
     this.page$,
     this.sortField$,
-    this.sortDir$
+    this.sortDir$,
+    this.pageSize$ 
   ]).pipe(
     debounceTime(300),
-    switchMap(([search, type, minStats, maxStats, page, sortField, sortDir]) => {
-      const limit = this.pageSize;
-      const offset = page * this.pageSize;
+    switchMap(([search, type, minStats, maxStats, page, sortField, sortDir, pageSize]) => {
+      const limit = pageSize;             
+      const offset = page * pageSize;      
 
       return this.pokemonService.getPokemons(limit, offset, search, type).pipe(
         map((res: any) => {
-          const data = res?.data?.pokemon_v2_pokemon || [];
-          const serverTotalCount = res?.data?.pokemon_v2_pokemon_aggregate?.aggregate?.count ?? 0;
+          const data = res?.pokemon_v2_pokemon || [];
+          const serverTotalCount = res?.pokemon_v2_pokemon_aggregate?.aggregate?.count ?? 0;
 
           let filtered = [...data];
           filtered = filtered.filter((p: any) => {
@@ -98,7 +147,7 @@ export class PokemonStore {
             pokemons: filtered,
             total: serverTotalCount,
             page,
-            pageSize: this.pageSize,
+            pageSize,    
             minStats,
             maxStats
           };
@@ -106,11 +155,11 @@ export class PokemonStore {
       );
     })
   );
-
   setSearch(value: string): void { this.search$.next(value); this.page$.next(0); }
   setType(value: string): void { this.type$.next(value); this.page$.next(0); }
   setStatsRange(min: number, max: number): void { this.minStats$.next(min); this.maxStats$.next(max); this.page$.next(0); }
   setPage(value: number): void { this.page$.next(value); }
+  setPageSize(size: number): void { this.pageSize$.next(size); }
   setSort(field: string, direction: string): void { this.sortField$.next(field); this.sortDir$.next(direction || 'asc'); }
   
   reset(): void {

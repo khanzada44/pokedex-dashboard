@@ -13,13 +13,13 @@ import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../shared/material/material-module';
 import { Sidebar } from '../../layout/sidebar/sidebar';
 import { MatSort } from '@angular/material/sort';
-import { PageEvent } from '@angular/material/paginator';
 import { SelectionModel } from '@angular/cdk/collections';
 import { PokemonStore } from '../../state/pokemon.store';
 import { Observable } from 'rxjs';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import Chart from 'chart.js/auto';
 import { TrainerDashboardStore } from '../../state/trainer.store';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-pokedex',
@@ -30,6 +30,7 @@ import { TrainerDashboardStore } from '../../state/trainer.store';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Pokedex implements OnInit, AfterViewInit {
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
   private sanitizer = inject(DomSanitizer);
   private cdr = inject(ChangeDetectorRef);
   public pokemonStore = inject(PokemonStore);
@@ -205,6 +206,7 @@ export class Pokedex implements OnInit, AfterViewInit {
   }
   onPageChange(event: PageEvent): void {
     this.pageSize = event.pageSize;
+    this.pokemonStore.setPageSize(event.pageSize);
     this.pokemonStore.setPage(event.pageIndex);
     this.selection.clear();
   }
