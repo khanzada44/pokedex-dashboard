@@ -1,9 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, interval, switchMap, startWith, catchError, of, BehaviorSubject, merge, scan } from 'rxjs';
+import { Observable, map, interval, switchMap, startWith, catchError, of, BehaviorSubject, merge, scan, from } from 'rxjs';
 import { Battle, BattleLogEntry } from '../models/battle.model';
-import { CREATE_BATTLE_MUTATION, GET_BATTLE_DATA, GET_BATTLE_LOGS_QUERY, GET_BATTLES_QUERY, LOG_BATTLE_MUTATION } from '../graphql/queries/battle-log.queries';
-
+import {  GET_BATTLE_DATA, GET_BATTLE_LOGS_QUERY, GET_BATTLES_QUERY } from '../graphql/queries/battle-log.queries';
+import {CREATE_BATTLE_MUTATION, LOG_BATTLE_MUTATION} from '../graphql/mutations/battle-log.mutation'
 @Injectable({
     providedIn: 'root'
 })

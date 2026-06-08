@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
-import { GET_TRAINER_DATA_QUERY, UPDATE_TEAM_MUTATION } from '../graphql/queries/pokemon.queries';
+import {  Observable } from 'rxjs';
+import { GET_TRAINER_DATA_QUERY } from '../graphql/queries/pokemon.queries';
 import { GET_TRAINER_DASHBOARD, CREATE_NEW_TEAM } from '../graphql/queries/trainer.queries';
+import { UPDATE_TEAM_MUTATION } from '../graphql/mutations/pokemon.mutation';
 
 @Injectable({
   providedIn: 'root'
@@ -41,11 +42,5 @@ fetchTeams(): Observable<any> {
     query: '{ allTeams { id, name, pokemon_ids } }' 
   });
 }
-// trainer.service.ts
-
-/**
- * Fetches all Pokémon from the PokéAPI GraphQL endpoint.
- * Documentation requirement: Paginated Pokémon list.
- */
 
 }

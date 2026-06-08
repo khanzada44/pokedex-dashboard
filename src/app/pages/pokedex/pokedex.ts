@@ -1,4 +1,14 @@
-import { Component, ViewChild, AfterViewInit, OnInit, ChangeDetectionStrategy, signal, ChangeDetectorRef, inject, ElementRef } from '@angular/core';
+import {
+  Component,
+  ViewChild,
+  AfterViewInit,
+  OnInit,
+  ChangeDetectionStrategy,
+  signal,
+  ChangeDetectorRef,
+  inject,
+  ElementRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../shared/material/material-module';
 import { Sidebar } from '../../layout/sidebar/sidebar';
@@ -9,7 +19,7 @@ import { PokemonStore } from '../../state/pokemon.store';
 import { Observable } from 'rxjs';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import Chart from 'chart.js/auto';
-import { TrainerDashboardStore } from '../../state/trainer.store'
+import { TrainerDashboardStore } from '../../state/trainer.store';
 
 @Component({
   selector: 'app-pokedex',
@@ -17,7 +27,7 @@ import { TrainerDashboardStore } from '../../state/trainer.store'
   imports: [CommonModule, MaterialModule, Sidebar],
   templateUrl: './pokedex.html',
   styleUrls: ['./pokedex.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Pokedex implements OnInit, AfterViewInit {
   private sanitizer = inject(DomSanitizer);
@@ -27,10 +37,20 @@ export class Pokedex implements OnInit, AfterViewInit {
 
   isDetailsPanelOpen = signal<boolean>(false);
   pageSize = 10;
-  pageSizeOptions = [10, 20, 50];
+  pageSizeOptions = [10, 50, 100];
   displayedColumns: string[] = [
-    'select', 'image', 'name', 'types', 'hp', 'attack', 'defense',
-    'specialAttack', 'specialDefense', 'speed', 'total', 'actions'
+    'select',
+    'image',
+    'name',
+    'types',
+    'hp',
+    'attack',
+    'defense',
+    'specialAttack',
+    'specialDefense',
+    'speed',
+    'total',
+    'actions',
   ];
 
   vm$: Observable<any> = this.pokemonStore.vm$;
@@ -42,19 +62,22 @@ export class Pokedex implements OnInit, AfterViewInit {
 
   // Static Video Map as required by Task 7 documentation
   private videoMap: Record<number, string> = {
-    1: 'm0D_SscSfs8',  // Bulbasaur strategy/anime video ID
-    4: '870Xv5U_mCE',  // Charmander
-    7: 'U6gBv828y40',  // Squirtle
-    13: 'kbyL7b3pCQQ'  // Weedle
+    1: 'm0D_SscSfs8', // Bulbasaur strategy/anime video ID
+    4: '870Xv5U_mCE', // Charmander
+    7: 'U6gBv828y40', // Squirtle
+    13: 'kbyL7b3pCQQ', // Weedle
   };
 
   ngOnInit(): void {
     this.pokemonStore.setPage(0);
+    this.vm$.subscribe((res) => {
+      console.log(res);
+    });
   }
 
   ngAfterViewInit(): void {
     if (this.sort) {
-      this.sort.sortChange.subscribe(sort => {
+      this.sort.sortChange.subscribe((sort) => {
         this.pokemonStore.setSort(sort.active, sort.direction);
       });
     }
@@ -67,16 +90,20 @@ export class Pokedex implements OnInit, AfterViewInit {
   getVideoUrl(pokemonId: number): SafeResourceUrl | null {
     const videoId = this.videoMap[pokemonId];
     if (!videoId) return null;
-    return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0`);
+    return this.sanitizer.bypassSecurityTrustResourceUrl(
+      `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0`,
+    );
   }
 
   /**
    * Spawns an animated HTML5 custom audio stream rendering a Pokémon cry.
    */
   playPokemonCry(pokemonId: number): void {
-    const audio = new Audio(`https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${pokemonId}.ogg`);
+    const audio = new Audio(
+      `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${pokemonId}.ogg`,
+    );
     audio.volume = 0.4;
-    audio.play().catch(err => console.warn('Audio contextual block triggered:', err));
+    audio.play().catch((err) => console.warn('Audio contextual block triggered:', err));
   }
 
   /**
@@ -89,8 +116,8 @@ export class Pokedex implements OnInit, AfterViewInit {
     const statsLabels = ['HP', 'Attack', 'Defense', 'Sp. Atk', 'Sp. Def', 'Speed'];
     const targetKeys = ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed'];
 
-    const dataValues = targetKeys.map(key => {
-      const match = statsArray.find(s => s?.pokemon_v2_stat?.name === key);
+    const dataValues = targetKeys.map((key) => {
+      const match = statsArray.find((s) => s?.pokemon_v2_stat?.name === key);
       return match?.base_stat ?? 0;
     });
 
@@ -105,15 +132,17 @@ export class Pokedex implements OnInit, AfterViewInit {
       type: 'radar',
       data: {
         labels: statsLabels,
-        datasets: [{
-          label: 'Base Attribute Matrix',
-          data: dataValues,
-          backgroundColor: 'rgba(59, 130, 246, 0.2)',
-          borderColor: 'rgba(59, 130, 246, 1)',
-          borderWidth: 2,
-          pointBackgroundColor: 'rgba(30, 64, 175, 1)',
-          pointHoverRadius: 6
-        }]
+        datasets: [
+          {
+            label: 'Base Attribute Matrix',
+            data: dataValues,
+            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+            borderColor: 'rgba(59, 130, 246, 1)',
+            borderWidth: 2,
+            pointBackgroundColor: 'rgba(30, 64, 175, 1)',
+            pointHoverRadius: 6,
+          },
+        ],
       },
       options: {
         responsive: true,
@@ -124,11 +153,11 @@ export class Pokedex implements OnInit, AfterViewInit {
             min: 0,
             max: 160,
             ticks: { display: false },
-            grid: { color: 'rgba(226, 232, 240, 0.8)' }
-          }
+            grid: { color: 'rgba(226, 232, 240, 0.8)' },
+          },
         },
-        plugins: { legend: { display: false } }
-      }
+        plugins: { legend: { display: false } },
+      },
     });
   }
 
@@ -149,7 +178,7 @@ export class Pokedex implements OnInit, AfterViewInit {
         const updatedDetails = {
           ...activeDetails,
           height: activeDetails.height || pokemon.height,
-          weight: activeDetails.weight || pokemon.weight
+          weight: activeDetails.weight || pokemon.weight,
         };
 
         // Store ki BehaviorSubject pipeline ko updated data wapis bhej rahe hain
@@ -165,8 +194,12 @@ export class Pokedex implements OnInit, AfterViewInit {
   }
 
   // Mandatory Table Shared Handlers
-  onSearch(event: any): void { this.pokemonStore.setSearch(event.target.value); }
-  onTypeFilter(value: string): void { this.pokemonStore.setType(value); }
+  onSearch(event: any): void {
+    this.pokemonStore.setSearch(event.target.value);
+  }
+  onTypeFilter(value: string): void {
+    this.pokemonStore.setType(value);
+  }
   onRangeSliderChange(min: string | number, max: string | number): void {
     this.pokemonStore.setStatsRange(Number(min), Number(max));
   }
@@ -175,20 +208,33 @@ export class Pokedex implements OnInit, AfterViewInit {
     this.pokemonStore.setPage(event.pageIndex);
     this.selection.clear();
   }
-  isAllSelected(rows: any[]): boolean { return this.selection.selected.length === rows.length; }
-  masterToggle(rows: any[]): void { this.isAllSelected(rows) ? this.selection.clear() : rows.forEach(r => this.selection.select(r)); }
-  resetFilters(): void { this.pokemonStore.reset(); this.selection.clear(); }
-  getStat(stats: any[], name: string): number { return stats?.find(s => s?.pokemon_v2_stat?.name === name)?.base_stat ?? 0; }
-  getTotal(stats: any[]): number { return stats?.reduce((sum, s) => sum + (s?.base_stat ?? 0), 0) ?? 0; }
-
-bulkAddToTeam(): void {
-  const selectedIds = this.selection.selected.map(p => p.id);
-  if (selectedIds.length === 0) {
-    console.log("Koi Pokémon select nahi kiya bhai!");
-    return;
+  isAllSelected(rows: any[]): boolean {
+    return this.selection.selected.length === rows.length;
   }
-  const activeTeamId = 1;
-  this.trainerStore.addPokemonToTeam(activeTeamId, selectedIds);
-  this.selection.clear();
-}
+  masterToggle(rows: any[]): void {
+    this.isAllSelected(rows)
+      ? this.selection.clear()
+      : rows.forEach((r) => this.selection.select(r));
+  }
+  resetFilters(): void {
+    this.pokemonStore.reset();
+    this.selection.clear();
+  }
+  getStat(stats: any[], name: string): number {
+    return stats?.find((s) => s?.pokemon_v2_stat?.name === name)?.base_stat ?? 0;
+  }
+  getTotal(stats: any[]): number {
+    return stats?.reduce((sum, s) => sum + (s?.base_stat ?? 0), 0) ?? 0;
+  }
+
+  bulkAddToTeam(): void {
+    const selectedIds = this.selection.selected.map((p) => p.id);
+    if (selectedIds.length === 0) {
+      console.log('Koi Pokémon select nahi kiya bhai!');
+      return;
+    }
+    const activeTeamId = 1;
+    this.trainerStore.addPokemonToTeam(activeTeamId, selectedIds);
+    this.selection.clear();
+  }
 }

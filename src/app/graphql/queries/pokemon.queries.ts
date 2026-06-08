@@ -1,4 +1,6 @@
-export const GET_POKEMONS_QUERY = `
+import { gql } from 'apollo-angular';
+
+export const GET_POKEMONS_QUERY = gql`
   query GetPokemon(
     $limit: Int,
     $offset: Int,
@@ -54,7 +56,7 @@ export const GET_POKEMONS_QUERY = `
 `;
 
 
-export const GET_POKEMON_DETAILS_QUERY = `
+export const GET_POKEMON_DETAILS_QUERY  = gql `
   query GetAbilities($pokemonId: Int!) {
     pokemon_v2_pokemon_by_pk(id: $pokemonId) {
       id
@@ -72,15 +74,7 @@ export const GET_POKEMON_DETAILS_QUERY = `
     }
   }
 `;
-export const UPDATE_TEAM_MUTATION =`
-  mutation UpdateTeam($id: ID!, $pokemon_ids: [Int!]!) {
-    updateTeam(id: $id, pokemon_ids: $pokemon_ids) {
-      id
-      name
-      pokemon_ids
-    }
-  }
-`;
+
 export const GET_TRAINER_DATA_QUERY = `
   query GetTrainerData {
     allTrainers {
@@ -107,6 +101,18 @@ export const GET_TRAINER_DATA_QUERY = `
       date
       score_trainer
       score_opponent
+    }
+  }
+`;
+
+export const GET_ALL_POKEMON = gql`
+  query GetPokemon {
+    pokemon_v2_pokemon(limit: 100) {
+      id
+      name
+      pokemon_v2_pokemonsprites {
+        sprites
+      }
     }
   }
 `;
