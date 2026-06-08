@@ -47,7 +47,7 @@
 
       <div class="table-container">
         <ng-container *ngIf="vm$ | async as vm; else loading">
-          <ng-container *ngIf="(vm?.pokemons?.length ?? 0) > 0; else noData">
+          <ng-container *ngIf="vm?.pokemons?.length > 0; else noData">
 
             <table mat-table [dataSource]="vm.pokemons" matSort>
 
@@ -143,9 +143,11 @@
 
           </ng-container>
 
-          <ng-template #noData>
-            <div class="no-data">No Pokémon matched your current filtering criteria.</div>
-          </ng-template>
+        <ng-template #noData>
+          <div class="no-data">
+            No Pokémon matched your current filtering criteria.
+          </div>
+        </ng-template>
         </ng-container>
 
         <ng-template #loading>

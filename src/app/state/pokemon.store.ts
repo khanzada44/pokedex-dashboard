@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest } from 'rxjs';
-import { debounceTime, switchMap, map } from 'rxjs/operators';
+import { debounceTime, switchMap, map, startWith } from 'rxjs/operators';
 import { PokemonService } from '../services/pokemon.service';
 import { Pokemon } from '../models/pokemon.model';
 
@@ -58,54 +58,6 @@ export class PokemonStore {
     });
   }
 
-  // vm$ = combineLatest([
-  //   this.search$,
-  //   this.type$,
-  //   this.minStats$,
-  //   this.maxStats$,
-  //   this.page$,
-  //   this.sortField$,
-  //   this.sortDir$
-  // ]).pipe(
-  //   debounceTime(300),
-  //   switchMap(([search, type, minStats, maxStats, page, sortField, sortDir]) => {
-  //     const limit = this.pageSize;
-  //     const offset = page * this.pageSize;
-
-  //     return this.pokemonService.getPokemons(limit, offset, search, type).pipe(
-  //       map((res: any) => {
-  //         const data = res?.pokemon_v2_pokemon || [];
-  //         const serverTotalCount = res?.pokemon_v2_pokemon_aggregate?.aggregate?.count ?? 0;
-
-  //         let filtered = [...data];
-  //         filtered = filtered.filter((p: any) => {
-  //           const totalStat = this.getTotal(p.pokemon_v2_pokemonstats);
-  //           return totalStat >= minStats && totalStat <= maxStats;
-  //         });
-
-  //         const isAsc = sortDir === 'asc';
-  //         filtered = filtered.sort((a: any, b: any) => {
-  //           switch (sortField) {
-  //             case 'name': return this.compare(a.name, b.name, isAsc);
-  //             case 'id': return this.compare(a.id, b.id, isAsc);
-  //             case 'height': return this.compare(a.height, b.height, isAsc);
-  //             case 'weight': return this.compare(a.weight, b.weight, isAsc);
-  //             default: return 0;
-  //           }
-  //         });
-
-  //         return {
-  //           pokemons: filtered,
-  //           total: serverTotalCount,
-  //           page,
-  //           pageSize: this.pageSize,
-  //           minStats,
-  //           maxStats
-  //         };
-  //       })
-  //     );
-  //   })
-  // );
 vm$ = combineLatest([
     this.search$,
     this.type$,
@@ -122,10 +74,12 @@ vm$ = combineLatest([
       const offset = page * pageSize;      
 
       return this.pokemonService.getPokemons(limit, offset, search, type).pipe(
+        startWith(null),
         map((res: any) => {
+          if (!res) return null;
           const data = res?.pokemon_v2_pokemon || [];
           const serverTotalCount = res?.pokemon_v2_pokemon_aggregate?.aggregate?.count ?? 0;
-
+          if (!res) return null; 
           let filtered = [...data];
           filtered = filtered.filter((p: any) => {
             const totalStat = this.getTotal(p.pokemon_v2_pokemonstats);
