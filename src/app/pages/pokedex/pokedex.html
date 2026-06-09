@@ -4,10 +4,9 @@
   <div class="main-content">
     <div class="page-container">
 
-      <!-- ─── Filter Bar ─────────────────────────────────── -->
       <div class="filter-bar">
         <mat-form-field appearance="outline">
-          <mat-label>Search Pokémon</mat-label>
+          <mat-label>Search Pokemon</mat-label>
           <input matInput (input)="onSearch($event)" placeholder="e.g. Pikachu" />
         </mat-form-field>
 
@@ -49,7 +48,6 @@
         <button mat-stroked-button color="warn" (click)="resetFilters()">Reset</button>
       </div>
 
-      <!-- ─── Bulk Actions ───────────────────────────────── -->
       <div class="bulk-actions-container" *ngIf="selection.hasValue()">
         <span><strong>{{ selection.selected.length }}</strong> Pokémon Selected</span>
         <button mat-raised-button color="accent" (click)="bulkAddToTeam()">
@@ -57,7 +55,7 @@
         </button>
       </div>
 
-      <!-- ─── Table ──────────────────────────────────────── -->
+      <!-- Table  -->
       <div class="table-container">
         <ng-container *ngIf="vm$ | async as vm; else loading">
           <ng-container *ngIf="vm?.pokemons?.length > 0; else noData">
@@ -67,16 +65,13 @@
               <!-- Select -->
               <ng-container matColumnDef="select">
                 <th mat-header-cell *matHeaderCellDef>
-                  <mat-checkbox
-                    (change)="$event ? masterToggle(vm.pokemons) : null"
+                  <mat-checkbox (change)="$event ? masterToggle(vm.pokemons) : null"
                     [checked]="selection.hasValue() && isAllSelected(vm.pokemons)"
                     [indeterminate]="selection.hasValue() && !isAllSelected(vm.pokemons)">
                   </mat-checkbox>
                 </th>
                 <td mat-cell *matCellDef="let row">
-                  <mat-checkbox
-                    (click)="$event.stopPropagation()"
-                    (change)="$event ? selection.toggle(row) : null"
+                  <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
                     [checked]="selection.isSelected(row)">
                   </mat-checkbox>
                 </td>
@@ -102,9 +97,7 @@
               <ng-container matColumnDef="types">
                 <th mat-header-cell *matHeaderCellDef>Types</th>
                 <td mat-cell *matCellDef="let p">
-                  <span
-                    *ngFor="let t of p.pokemon_v2_pokemontypes"
-                    class="type-badge"
+                  <span *ngFor="let t of p.pokemon_v2_pokemontypes" class="type-badge"
                     [attr.data-type]="t.pokemon_v2_type.name">
                     {{ t.pokemon_v2_type.name | uppercase }}
                   </span>
@@ -153,24 +146,20 @@
               <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef>Actions</th>
                 <td mat-cell *matCellDef="let row">
-                  <button mat-raised-button color="primary"
+                  <button mat-raised-button color="primary" (mouseenter)="prefetchPokemon(row.id)"
                     (click)="$event.stopPropagation(); openDetailsPanel(row)">
                     View Details
                   </button>
                 </td>
               </ng-container>
 
+
               <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
               <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
             </table>
 
-            <mat-paginator
-              [length]="vm?.total || 0"
-              [pageSize]="vm?.pageSize || pageSize"
-              [pageIndex]="vm?.page || 0"
-              [pageSizeOptions]="pageSizeOptions"
-              showFirstLastButtons
-              (page)="onPageChange($event)">
+            <mat-paginator [length]="vm?.total || 0" [pageSize]="vm?.pageSize || pageSize" [pageIndex]="vm?.page || 0"
+              [pageSizeOptions]="pageSizeOptions" showFirstLastButtons (page)="onPageChange($event)">
             </mat-paginator>
 
           </ng-container>
@@ -181,7 +170,7 @@
         </ng-container>
 
         <ng-template #loading>
-          <div class="loading">Loading Pokédex...</div>
+          <div class="loading">Loading Pokedex.....</div>
         </ng-template>
       </div>
 
@@ -189,201 +178,192 @@
   </div>
 </div>
 
-<!-- ─────────────────────────────────────────────────── -->
-<!--  DETAILS SIDE PANEL                                 -->
-<!-- ─────────────────────────────────────────────────── -->
 @if (isDetailsPanelOpen()) {
-  <div class="details-backdrop" (click)="isDetailsPanelOpen.set(false)"></div>
+<div class="details-backdrop" (click)="isDetailsPanelOpen.set(false)"></div>
 
-  <div class="pokemon-details-panel">
+<div class="pokemon-details-panel">
 
-    <!-- Header -->
-    <div class="panel-header">
-      <h2>Pokémon Profile</h2>
-      <button class="close-btn" (click)="isDetailsPanelOpen.set(false)">
-        <span class="material-icons">close</span>
-      </button>
+  <!-- Header -->
+  <div class="panel-header">
+    <h2>Pokémon Profile</h2>
+    <button class="close-btn" (click)="isDetailsPanelOpen.set(false)">
+      <span class="material-icons">close</span>
+    </button>
+  </div>
+
+  <div class="panel-content">
+
+    <!-- Loading shimmer -->
+    @if (pokemonStore.isDetailsLoading$ | async) {
+    <div class="shimmer-container">
+      <div class="shimmer-line header"></div>
+      <div class="shimmer-line element"></div>
+      <div class="shimmer-line text"></div>
+      <div class="shimmer-line text"></div>
     </div>
+    } @else {
 
-    <div class="panel-content">
+    @if (pokemonStore.selectedPokemonDetails$ | async; as pokemon) {
 
-      <!-- Loading shimmer -->
-      @if (pokemonStore.isDetailsLoading$ | async) {
-        <div class="shimmer-container">
-          <div class="shimmer-line header"></div>
-          <div class="shimmer-line element"></div>
-          <div class="shimmer-line text"></div>
-          <div class="shimmer-line text"></div>
-        </div>
+    <!-- ① Media: Video or Fallback Artwork -->
+    <div class="media-container">
+      @if (getVideoUrl(pokemon.id); as validUrl) {
+      <div class="video-frame-wrapper">
+        <iframe [src]="validUrl" frameborder="0" allowfullscreen></iframe>
+      </div>
       } @else {
-
-        @if (pokemonStore.selectedPokemonDetails$ | async; as pokemon) {
-
-          <!-- ① Media: Video or Fallback Artwork -->
-          <div class="media-container">
-            @if (getVideoUrl(pokemon.id); as validUrl) {
-              <div class="video-frame-wrapper">
-                <iframe [src]="validUrl" frameborder="0" allowfullscreen></iframe>
-              </div>
-            } @else {
-              <div class="fallback-artwork-wrapper">
-                <img
-                  [src]="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' + pokemon.id + '.png'"
-                  [alt]="pokemon.name">
-                <span class="fallback-notice-tag">No video available</span>
-              </div>
-            }
-          </div>
-
-          <!-- ② Profile Card -->
-          <div class="profile-card">
-            <h1 class="pokemon-title">{{ pokemon.name | titlecase }}</h1>
-            <div class="badge-row">
-              <span class="pokemon-id-tag">#{{ pokemon.id | number:'3.0-0' }}</span>
-              <button class="audio-cry-btn" (click)="playPokemonCry(pokemon.id)">
-                <span class="material-icons">volume_up</span> Play Cry
-              </button>
-            </div>
-
-            <div class="specs-grid">
-              <div class="spec-item">
-                <span class="spec-label">Height</span>
-                <span class="spec-value">{{ (pokemon.height / 10) | number:'1.1-1' }} m</span>
-              </div>
-              <div class="spec-item">
-                <span class="spec-label">Weight</span>
-                <span class="spec-value">{{ (pokemon.weight / 10) | number:'1.1-1' }} kg</span>
-              </div>
-              <div class="spec-item">
-                <span class="spec-label">Total BST</span>
-                <span class="spec-value">{{ getTotal(pokemon.pokemon_v2_pokemonstats) }}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="section-divider"></div>
-
-          <!-- ③ Radar Chart -->
-          <div class="charts-section">
-            <h3 class="section-heading">Base Stats</h3>
-            <div class="chart-wrapper-canvas">
-              <canvas #radarChartCanvas></canvas>
-            </div>
-          </div>
-
-          <div class="section-divider"></div>
-
-          <!-- ④ Stats Bars -->
-          <div class="stats-bars-section">
-            <h3 class="section-heading">Stat Breakdown</h3>
-            <div class="stats-list">
-              @for (stat of pokemon.pokemon_v2_pokemonstats; track stat.pokemon_v2_stat.name) {
-                <div class="stat-row">
-                  <span class="stat-name">{{ stat.pokemon_v2_stat.name | titlecase }}</span>
-                  <span class="stat-value">{{ stat.base_stat }}</span>
-                  <div class="stat-bar-bg">
-                    <div
-                      class="stat-bar-fill"
-                      [class]="getStatClass(stat.base_stat)"
-                      [style.width.%]="getStatPercent(stat.base_stat)">
-                    </div>
-                  </div>
-                </div>
-              }
-            </div>
-          </div>
-
-          <div class="section-divider"></div>
-
-          <!-- ⑤ Moves -->
-          <div class="moves-section">
-            <h3 class="section-heading">Moves <span class="section-badge">Top 10</span></h3>
-            <div class="moves-grid">
-              @for (move of pokemon.pokemon_v2_pokemonmoves; track move.pokemon_v2_move.name) {
-                <div class="move-card">
-                  <div class="move-top">
-                    <span class="move-name">{{ move.pokemon_v2_move.name | titlecase }}</span>
-                    <span
-                      class="type-badge move-type-badge"
-                      [attr.data-type]="move.pokemon_v2_move.pokemon_v2_type?.name">
-                      {{ move.pokemon_v2_move.pokemon_v2_type?.name | uppercase }}
-                    </span>
-                  </div>
-                  <div class="move-stats">
-                    <span class="move-stat-item">
-                      <span class="move-stat-label">PWR</span>
-                      <span class="move-stat-val">{{ move.pokemon_v2_move.power ?? '—' }}</span>
-                    </span>
-                    <span class="move-stat-item">
-                      <span class="move-stat-label">ACC</span>
-                      <span class="move-stat-val">{{ move.pokemon_v2_move.accuracy ?? '—' }}</span>
-                    </span>
-                  </div>
-                </div>
-              }
-            </div>
-          </div>
-
-          <div class="section-divider"></div>
-
-          <!-- ⑥ Evolution Chain -->
-          <div class="evolution-section">
-            <h3 class="section-heading">Evolution Chain</h3>
-            @if (pokemon.pokemon_v2_pokemonspecy?.pokemon_v2_evolutionchain?.pokemon_v2_pokemonspecies?.length > 0) {
-              <div class="evolution-chain">
-                @for (
-                  evo of pokemon.pokemon_v2_pokemonspecy.pokemon_v2_evolutionchain.pokemon_v2_pokemonspecies;
-                  track evo.id;
-                  let last = $last
-                ) {
-                  <div class="evo-item" (click)="openDetailsPanel(evo)">
-                    <div class="evo-sprite-wrapper" [class.active-evo]="evo.id === pokemon.id">
-                      <img
-                        [src]="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + evo.id + '.png'"
-                        [alt]="evo.name"
-                        width="64" height="64">
-                    </div>
-                    <span class="evo-name">{{ evo.name | titlecase }}</span>
-                  </div>
-                  @if (!last) {
-                    <span class="material-icons evo-arrow">arrow_forward</span>
-                  }
-                }
-              </div>
-            } @else {
-              <p class="no-evo-text">This Pokémon does not evolve.</p>
-            }
-          </div>
-
-          <div class="section-divider"></div>
-
-          <!-- ⑦ Abilities -->
-          <div class="abilities-section">
-            <h3 class="section-heading">Abilities</h3>
-            @for (item of pokemon.pokemon_v2_pokemonabilities; track item.pokemon_v2_ability.name) {
-              <div class="ability-card" [class.hidden-ability]="item.is_hidden">
-                <div class="ability-header">
-                  <span class="ability-name">{{ item.pokemon_v2_ability.name | titlecase }}</span>
-                  @if (item.is_hidden) {
-                    <span class="badge hidden-badge">Hidden</span>
-                  }
-                </div>
-                @if (item.pokemon_v2_ability.pokemon_v2_abilityeffecttexts?.[0]; as fx) {
-                  <p class="ability-effect">{{ fx.short_effect }}</p>
-                } @else {
-                  <p class="ability-effect ambient-text">No description available.</p>
-                }
-              </div>
-            }
-          </div>
-
-        } @else {
-          <div class="empty-state">
-            <span class="material-icons empty-icon">catching_pokemon</span>
-            <p>Select a Pokémon from the table to view its profile.</p>
-          </div>
-        }
+      <div class="fallback-artwork-wrapper">
+        <img
+          [src]="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/' + pokemon.id + '.png'"
+          [alt]="pokemon.name">
+        <span class="fallback-notice-tag">No video available</span>
+      </div>
       }
     </div>
+
+    <!-- ② Profile Card -->
+    <div class="profile-card">
+      <h1 class="pokemon-title">{{ pokemon.name | titlecase }}</h1>
+      <div class="badge-row">
+        <span class="pokemon-id-tag">#{{ pokemon.id | number:'3.0-0' }}</span>
+        <button class="audio-cry-btn" (click)="playPokemonCry(pokemon.id)">
+          <span class="material-icons">volume_up</span> Play Cry
+        </button>
+      </div>
+
+      <div class="specs-grid">
+        <div class="spec-item">
+          <span class="spec-label">Height</span>
+          <span class="spec-value">{{ (pokemon.height / 10) | number:'1.1-1' }} m</span>
+        </div>
+        <div class="spec-item">
+          <span class="spec-label">Weight</span>
+          <span class="spec-value">{{ (pokemon.weight / 10) | number:'1.1-1' }} kg</span>
+        </div>
+        <div class="spec-item">
+          <span class="spec-label">Total BST</span>
+          <span class="spec-value">{{ getTotal(pokemon.pokemon_v2_pokemonstats) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- ③ Radar Chart -->
+    <div class="charts-section">
+      <h3 class="section-heading">Base Stats</h3>
+      <div class="chart-wrapper-canvas">
+        <canvas #radarChartCanvas></canvas>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- ④ Stats Bars -->
+    <div class="stats-bars-section">
+      <h3 class="section-heading">Stat Breakdown</h3>
+      <div class="stats-list">
+        @for (stat of pokemon.pokemon_v2_pokemonstats; track stat.pokemon_v2_stat.name) {
+        <div class="stat-row">
+          <span class="stat-name">{{ stat.pokemon_v2_stat.name | titlecase }}</span>
+          <span class="stat-value">{{ stat.base_stat }}</span>
+          <div class="stat-bar-bg">
+            <div class="stat-bar-fill" [class]="getStatClass(stat.base_stat)"
+              [style.width.%]="getStatPercent(stat.base_stat)">
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- ⑤ Moves -->
+    <div class="moves-section">
+      <h3 class="section-heading">Moves <span class="section-badge">Top 10</span></h3>
+      <div class="moves-grid">
+        @for (move of pokemon.pokemon_v2_pokemonmoves; track move.pokemon_v2_move.name) {
+        <div class="move-card">
+          <div class="move-top">
+            <span class="move-name">{{ move.pokemon_v2_move.name | titlecase }}</span>
+            <span class="type-badge move-type-badge" [attr.data-type]="move.pokemon_v2_move.pokemon_v2_type?.name">
+              {{ move.pokemon_v2_move.pokemon_v2_type?.name | uppercase }}
+            </span>
+          </div>
+          <div class="move-stats">
+            <span class="move-stat-item">
+              <span class="move-stat-label">PWR</span>
+              <span class="move-stat-val">{{ move.pokemon_v2_move.power ?? '—' }}</span>
+            </span>
+            <span class="move-stat-item">
+              <span class="move-stat-label">ACC</span>
+              <span class="move-stat-val">{{ move.pokemon_v2_move.accuracy ?? '—' }}</span>
+            </span>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- ⑥ Evolution Chain -->
+    <div class="evolution-section">
+      <h3 class="section-heading">Evolution Chain</h3>
+      @if (pokemon.pokemon_v2_pokemonspecy?.pokemon_v2_evolutionchain?.pokemon_v2_pokemonspecies?.length > 0) {
+      <div class="evolution-chain">
+        @for (
+        evo of pokemon.pokemon_v2_pokemonspecy.pokemon_v2_evolutionchain.pokemon_v2_pokemonspecies;
+        track evo.id;
+        let last = $last
+        ) {
+        <div class="evo-item" (click)="openDetailsPanel(evo)">
+          <div class="evo-sprite-wrapper" [class.active-evo]="evo.id === pokemon.id">
+            <img [src]="'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/' + evo.id + '.png'"
+              [alt]="evo.name" width="64" height="64">
+          </div>
+          <span class="evo-name">{{ evo.name | titlecase }}</span>
+        </div>
+        @if (!last) {
+        <span class="material-icons evo-arrow">arrow_forward</span>
+        }
+        }
+      </div>
+      } @else {
+      <p class="no-evo-text">This Pokémon does not evolve.</p>
+      }
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- ⑦ Abilities -->
+    <div class="abilities-section">
+      <h3 class="section-heading">Abilities</h3>
+      @for (item of pokemon.pokemon_v2_pokemonabilities; track item.pokemon_v2_ability.name) {
+      <div class="ability-card" [class.hidden-ability]="item.is_hidden">
+        <div class="ability-header">
+          <span class="ability-name">{{ item.pokemon_v2_ability.name | titlecase }}</span>
+          @if (item.is_hidden) {
+          <span class="badge hidden-badge">Hidden</span>
+          }
+        </div>
+        @if (item.pokemon_v2_ability.pokemon_v2_abilityeffecttexts?.[0]; as fx) {
+        <p class="ability-effect">{{ fx.short_effect }}</p>
+        } @else {
+        <p class="ability-effect ambient-text">No description available.</p>
+        }
+      </div>
+      }
+    </div>
+
+    } @else {
+    <div class="empty-state">
+      <span class="material-icons empty-icon">catching_pokemon</span>
+      <p>Select a Pokémon from the table to view its profile.</p>
+    </div>
+    }
+    }
   </div>
+</div>
 }

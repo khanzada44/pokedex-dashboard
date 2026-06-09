@@ -8,7 +8,6 @@ import { Pokemon } from '../models/pokemon.model';
   providedIn: 'root' // Yeh poori app mein single instance (Singleton) banata hai
 })
 export class PokemonStore {
-  // Public streams jo HTML direct pipe ke zariye listen karega
   public isDetailsLoading$ = new BehaviorSubject<boolean>(false);
   public selectedPokemonDetails$ = new BehaviorSubject<any>(null);
   
@@ -23,6 +22,7 @@ export class PokemonStore {
   private sortField$ = new BehaviorSubject<string>('id');
   private sortDir$ = new BehaviorSubject<string>('asc');
   private pageSize$ = new BehaviorSubject<number>(10);
+  private detailsCache = new Map<number, any>();
 
   public selectedPokemonId$ = this.selectedPokemonIdSubject.asObservable();
   public readonly pokemon$ = this._pokemon$.asObservable();
@@ -33,30 +33,48 @@ export class PokemonStore {
     this._pokemon$.next(pokemons);
   }
 
-  private fetchPokemonDetails(id: number): void {
-    this.isDetailsLoading$.next(true);
-    this.selectedPokemonDetails$.next(null); // Pehle purana data clear karein
-    
-    this.pokemonService.getPokemonDetails(id).subscribe({
-      next: (res) => {
-        const details = res?.pokemon_v2_pokemon_by_pk;
-        console.log('Fetched details for Pokémon ID:', id, details);
-        
-        if (details) {
-          // Break reference break karein taake OnPush component template force refresh ho
-          this.selectedPokemonDetails$.next({ ...details });
-        } else {
-          this.selectedPokemonDetails$.next(null);
-        }
-        this.isDetailsLoading$.next(false);
-      },
-      error: (err) => {
-        console.error('Error fetching pokemon details:', err);
-        this.selectedPokemonDetails$.next(null);
-        this.isDetailsLoading$.next(false);
+  prefetchPokemonDetails(id: number): void {
+  if (this.detailsCache.has(id)) return;
+
+  this.pokemonService.getPokemonDetails(id).subscribe({
+    next: (res) => {
+      const details = res?.pokemon_v2_pokemon_by_pk;
+      if (details) {
+        this.detailsCache.set(id, { ...details });
       }
-    });
+    },
+    error: () => {}
+  });
+}
+
+private fetchPokemonDetails(id: number): void {
+  if (this.detailsCache.has(id)) {
+    this.selectedPokemonDetails$.next(this.detailsCache.get(id));
+    this.isDetailsLoading$.next(false);
+    return;
   }
+
+  this.isDetailsLoading$.next(true);
+  this.selectedPokemonDetails$.next(null);
+
+  this.pokemonService.getPokemonDetails(id).subscribe({
+    next: (res) => {
+      const details = res?.pokemon_v2_pokemon_by_pk;
+      if (details) {
+        this.detailsCache.set(id, { ...details });
+        this.selectedPokemonDetails$.next({ ...details });
+      } else {
+        this.selectedPokemonDetails$.next(null);
+      }
+      this.isDetailsLoading$.next(false);
+    },
+    error: (err) => {
+      console.error('Error fetching pokemon details:', err);
+      this.selectedPokemonDetails$.next(null);
+      this.isDetailsLoading$.next(false);
+    }
+  });
+}
 
 vm$ = combineLatest([
     this.search$,

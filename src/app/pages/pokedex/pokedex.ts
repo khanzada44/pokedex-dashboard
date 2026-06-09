@@ -36,11 +36,13 @@ export class Pokedex implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild('radarChartCanvas') radarChartCanvas!: ElementRef<HTMLCanvasElement>;
 
+
   private sanitizer = inject(DomSanitizer);
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
   public pokemonStore = inject(PokemonStore);
   private trainerStore = inject(TrainerDashboardStore);
+  private prefetchedIds = new Set<number>(); 
 
   /** Signal for details panel open/close state */
   isDetailsPanelOpen = signal<boolean>(false);
@@ -290,6 +292,11 @@ export class Pokedex implements OnInit, AfterViewInit {
     this.pokemonStore.reset();
     this.selection.clear();
   }
+  prefetchPokemon(id: number): void {
+  if (this.prefetchedIds.has(id)) return;
+  this.prefetchedIds.add(id);
+  this.pokemonStore.prefetchPokemonDetails(id); // silent cache only
+}
 
   /**
    * Finds a specific stat value by stat name from the stats array.
@@ -322,4 +329,5 @@ export class Pokedex implements OnInit, AfterViewInit {
     this.trainerStore.addPokemonToTeam(1, selectedIds);
     this.selection.clear();
   }
+  
 }
