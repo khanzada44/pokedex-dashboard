@@ -56,24 +56,52 @@ export const GET_POKEMONS_QUERY = gql`
 `;
 
 
-export const GET_POKEMON_DETAILS_QUERY  = gql `
-  query GetAbilities($pokemonId: Int!) {
+export const GET_POKEMON_DETAILS_QUERY = gql`
+  query GetPokemonDetails($pokemonId: Int!) {
     pokemon_v2_pokemon_by_pk(id: $pokemonId) {
       id
       name
+      height
+      weight
       pokemon_v2_pokemonabilities {
         is_hidden
         pokemon_v2_ability {
           name
-          pokemon_v2_abilityeffecttexts(where: {language_id: {_eq: 9}}) {
+          pokemon_v2_abilityeffecttexts(where: { language_id: { _eq: 9 } }) {
             effect
             short_effect
+          }
+        }
+      }
+      pokemon_v2_pokemonstats {
+        base_stat
+        pokemon_v2_stat {
+          name
+        }
+      }
+      pokemon_v2_pokemonmoves(limit: 10, distinct_on: move_id) {
+        pokemon_v2_move {
+          name
+          power
+          accuracy
+          pokemon_v2_type {
+            name
+          }
+        }
+      }
+      pokemon_v2_pokemonspecy {
+        pokemon_v2_evolutionchain {
+          pokemon_v2_pokemonspecies(order_by: { order: asc }) {
+            name
+            id
+            order
           }
         }
       }
     }
   }
 `;
+
 
 export const GET_TRAINER_DATA_QUERY = `
   query GetTrainerData {
