@@ -1,60 +1,114 @@
-import { Component, inject, OnInit, signal, computed, effect } from '@angular/core';
+import {Component,inject,OnInit,signal,computed,effect,ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
+import {FormBuilder,FormGroup,FormArray,Validators,ReactiveFormsModule,AbstractControl,ValidationErrors,AsyncValidatorFn,} from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { Observable, of, debounceTime, distinctUntilChanged, map, switchMap, first } from 'rxjs';
 import { Sidebar } from '../../layout/sidebar/sidebar';
 import { MaterialModule } from '../../shared/material/material-module';
 import { TrainerDashboardStore, LocalTrainerState } from '../../state/trainer.store';
 import { Team } from '../../models/team.model';
 import { Battle } from '../../models/battle.model';
 import { Trainer as TrainerModel } from '../../models/trainer.model';
+import { MatTabsModule } from '@angular/material/tabs';
+
+
+const TYPE_COLORS: Record<string, string> = {
+  fire: '#f97316',
+  water: '#3b82f6',
+  grass: '#22c55e',
+  electric: '#eab308',
+  psychic: '#a855f7',
+  ice: '#06b6d4',
+  dragon: '#6366f1',
+  dark: '#374151',
+  fighting: '#dc2626',
+  poison: '#9333ea',
+  ground: '#d97706',
+  flying: '#7dd3fc',
+  bug: '#84cc16',
+  rock: '#a16207',
+  ghost: '#7c3aed',
+  steel: '#64748b',
+  normal: '#94a3b8',
+  fairy: '#ec4899',
+};
+
+const COMMON_OFFENSIVE_TYPES = ['fire', 'water', 'electric', 'grass', 'ice', 'fighting'];
+
 
 @Component({
   selector: 'app-trainer',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, Sidebar, MaterialModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, ReactiveFormsModule, Sidebar, MaterialModule, MatTabsModule],
   templateUrl: './trainer.html',
-  styleUrl: './trainer.scss'
+  styleUrl: './trainer.scss',
 })
 export class Trainer implements OnInit {
   private store = inject(TrainerDashboardStore);
   private fb = inject(FormBuilder);
 
-  teamForm!: FormGroup;
-  competitiveMode = signal<boolean>(false);
+  readonly defaultAvatars: string[] = [
+    '',
+    'https://upload.wikimedia.org/wikipedia/en/e/e4/Ash_Ketchum_Journeys.png',
+    'https://upload.wikimedia.org/wikipedia/en/b/b1/MistyEP.png',
+    'https://cosplayfu-website.s3.amazonaws.com/_Upload/b/90947-Brock-Harrison-Plush-from-Pokemon.jpg',
+  ];
 
-  // FIX 2: Generic parameter hata kar strict initial object assignment di hai taake Overload signature error khatam ho jaye
+  readonly TIERS = ['OU', 'UU', 'RU', 'NU'] as const;
+  readonly HELD_ITEMS = [
+    'None',
+    'Leftovers',
+    'Life Orb',
+    'Choice Band',
+    'Choice Specs',
+    'Rocky Helmet',
+    'Eviolite',
+    'Focus Sash',
+  ];
+
+  competitiveMode = signal<boolean>(false);
+  showBattleForm = signal<boolean>(false);
+  showProfileForm = signal<boolean>(false);
+  activeTab = signal<number>(0);
+  deletingTeamId = signal<number | null>(null);
+
+
   stateSignal = toSignal(this.store.state, {
     initialValue: {
       currentTrainerId: 1,
-      trainers: [] as TrainerModel[], // Sahi renamed model cast kiya
+      trainers: [] as TrainerModel[],
       teams: [] as Team[],
       battles: [] as Battle[],
+      battleLogs: [] as any[],
       loading: false,
-      error: null as string | null
-    } as LocalTrainerState
+      error: null as string | null,
+    } as LocalTrainerState,
   });
 
-  // FIX 3: Refactored computed signals with safe navigation and TrainerModel check layers
+
   activeTrainer = computed(() => {
     const state = this.stateSignal();
-    if (!state || !state.trainers) return null;
-    return state.trainers.find((t: TrainerModel) => t.id === state.currentTrainerId) || null;
+    if (!state?.trainers?.length) return null;
+    return state.trainers.find((t: TrainerModel) => t.id === state.currentTrainerId) ?? null;
   });
+
 
   trainerTeams = computed(() => {
     const state = this.stateSignal();
-    if (!state || !state.teams) return [] as Team[];
+    if (!state?.teams) return [] as Team[];
     return state.teams.filter((t: Team) => t.trainer_id === state.currentTrainerId);
   });
 
+
   winRateAnalysis = computed(() => {
     const state = this.stateSignal();
-    if (!state || !state.battles) return { wins: 0, losses: 0, total: 0, percentage: 0 };
+    if (!state?.battles) return { wins: 0, losses: 0, total: 0, percentage: 0 };
 
-    const trainerBattles = state.battles.filter((b: Battle) => b.trainer_id === state.currentTrainerId);
+    const trainerBattles = state.battles.filter(
+      (b: Battle) => b.trainer_id === state.currentTrainerId,
+    );
     const total = trainerBattles.length;
-    
     if (total === 0) return { wins: 0, losses: 0, total: 0, percentage: 0 };
 
     const wins = trainerBattles.filter((b: Battle) => b.result === 'win').length;
@@ -64,75 +118,324 @@ export class Trainer implements OnInit {
     return { wins, losses, total, percentage };
   });
 
+
+  battleChartData = computed(() => {
+    const state = this.stateSignal();
+    if (!state?.battles) return [];
+
+    const trainerBattles = state.battles.filter(
+      (b: Battle) => b.trainer_id === state.currentTrainerId,
+    );
+
+    const monthMap: Record<string, { wins: number; losses: number }> = {};
+
+    trainerBattles.forEach((b: Battle) => {
+      const monthKey = b.date ? b.date.substring(0, 7) : 'Unknown';
+      if (!monthMap[monthKey]) monthMap[monthKey] = { wins: 0, losses: 0 };
+      if (b.result === 'win') monthMap[monthKey].wins++;
+      else monthMap[monthKey].losses++;
+    });
+
+    return Object.entries(monthMap)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .slice(-6)
+      .map(([month, data]) => ({
+        month: this._formatMonthLabel(month),
+        wins: data.wins,
+        losses: data.losses,
+      }));
+  });
+
+
+  teamTypeDistribution = computed(() => {
+    const teams = this.trainerTeams();
+    if (!teams.length) return [] as { type: string; count: number; color: string }[];
+
+    // For demo: count pokemon_ids length per type slot — real app would look up type from store
+    const typeCountMap: Record<string, number> = {};
+    const demoTypes = ['water', 'fire', 'grass', 'electric', 'dragon', 'ice', 'normal', 'psychic'];
+
+    teams[0].pokemon_ids.forEach((id: number) => {
+      const demoType = demoTypes[id % demoTypes.length];
+      typeCountMap[demoType] = (typeCountMap[demoType] || 0) + 1;
+    });
+
+    return Object.entries(typeCountMap).map(([type, count]) => ({
+      type,
+      count,
+      color: TYPE_COLORS[type] ?? '#94a3b8',
+    }));
+  });
+
+
+  typeWeaknessGap = computed(() => {
+    const teams = this.trainerTeams();
+    if (!teams.length) return [] as string[];
+
+    const covered = new Set(
+      teams[0].pokemon_ids.map((id: number) => {
+        const demoTypes = ['water', 'fire', 'grass', 'electric', 'dragon', 'ice'];
+        return demoTypes[id % demoTypes.length];
+      }),
+    );
+
+    return COMMON_OFFENSIVE_TYPES.filter((t) => !covered.has(t));
+  });
+
+  activeBattles = computed(() => {
+    const state = this.stateSignal();
+    if (!state?.battles) return [] as Battle[];
+    return state.battles.filter((b: Battle) => b.trainer_id === state.currentTrainerId);
+  });
+
+  liveBattleLogs = computed(() => {
+    const state = this.stateSignal();
+    return state?.battleLogs ?? [];
+  });
+
+  teamForm!: FormGroup;
+  battleLogForm!: FormGroup;
+  profileForm!: FormGroup;
+
+
   constructor() {
+
     effect(() => {
       const trainer = this.activeTrainer();
-      if (trainer) {
-        
+      if (trainer && typeof window !== 'undefined') {
         localStorage.setItem('active_trainer_id', trainer.id.toString());
+      }
+    });
+
+
+    effect(() => {
+      const trainer = this.activeTrainer();
+      if (trainer && this.profileForm) {
+        this.profileForm.patchValue(
+          {
+            name: trainer.name,
+            region: trainer.region,
+            badge_count: trainer.badge_count,
+          },
+          { emitEvent: false },
+        );
       }
     });
   }
 
-ngOnInit(): void {
-  // SSR error se bachne ke liye browser check
-if (typeof window !== 'undefined') {
-  const cachedTrainerId = window.localStorage.getItem('active_trainer_id');
 
-  if (cachedTrainerId) {
-    this.store.setTrainerId(parseInt(cachedTrainerId, 10));
+  ngOnInit(): void {
+    if (typeof window !== 'undefined') {
+      const cached = window.localStorage.getItem('active_trainer_id');
+      if (cached) this.store.setTrainerId(parseInt(cached, 10));
+    }
+
+    this.store.loadDashboardData();
+    this._buildTeamForm();
+    this._buildBattleLogForm();
+    this._buildProfileForm();
   }
-}
-  // Yeh code server aur browser dono par bina kisi error ke chalega
-  this.store.loadDashboardData();
-  this.buildTeamReactiveForm();
-}
 
-  private buildTeamReactiveForm(): void {
+  private _buildTeamForm(): void {
     this.teamForm = this.fb.group({
-      teamName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
-      pokemonSlots: this.fb.array([], [Validators.required, Validators.minLength(1)])
+      teamName: [
+        '',
+        [Validators.required, Validators.minLength(3), Validators.maxLength(30)],
+        [this._uniqueTeamNameValidator()],
+      ],
+      competitiveTier: ['OU'],
+      pokemonSlots: this.fb.array([], [Validators.required]),
     });
+  }
+
+  private _buildBattleLogForm(): void {
+    this.battleLogForm = this.fb.group({
+      opponent_name: ['', [Validators.required, Validators.minLength(2)]],
+      team_id: [null, Validators.required],
+      result: ['win', Validators.required],
+      score_trainer: [0, [Validators.required, Validators.min(0), Validators.max(6)]],
+      score_opponent: [0, [Validators.required, Validators.min(0), Validators.max(6)]],
+      date: [new Date().toISOString().substring(0, 10), Validators.required],
+    });
+  }
+
+  private _buildProfileForm(): void {
+    const t = this.activeTrainer();
+    this.profileForm = this.fb.group({
+      name: [t?.name ?? '', [Validators.required, Validators.minLength(3)]],
+      region: [t?.region ?? '', Validators.required],
+      badge_count: [
+        t?.badge_count ?? 0,
+        [Validators.required, Validators.min(0), Validators.max(8)],
+      ],
+    });
+  }
+
+  private _uniqueTeamNameValidator(): AsyncValidatorFn {
+    return (control: AbstractControl): Observable<ValidationErrors | null> => {
+      if (!control.value) return of(null);
+
+      return of(control.value).pipe(
+        debounceTime(400),
+        distinctUntilChanged(),
+        switchMap((name: string) => {
+          const exists = this.stateSignal().teams.some(
+            (t: Team) => t.name.toLowerCase() === name.toLowerCase(),
+          );
+          return of(exists ? { nameTaken: true } : null);
+        }),
+        first(),
+      );
+    };
   }
 
   get pokemonSlots(): FormArray {
     return this.teamForm.get('pokemonSlots') as FormArray;
   }
 
-  addPokemonSlot(pokemonId: number, name: string): void {
-    if (this.pokemonSlots.length >= 6) {
-      alert('Trainer Squad configurations limit capped at 6 items slots maxima.');
-      return;
-    }
-    const subGroupControl = this.fb.group({
+
+  getAvatar(index: number): string {
+    return this.defaultAvatars[index] ?? this.defaultAvatars[0];
+  }
+
+  getTypeColor(type: string): string {
+    return TYPE_COLORS[type.toLowerCase()] ?? '#94a3b8';
+  }
+
+  getSeverityClass(severity: string): string {
+    const map: Record<string, string> = {
+      success: 'log-success',
+      danger: 'log-danger',
+      info: 'log-info',
+    };
+    return map[severity] ?? 'log-info';
+  }
+
+  addPokemonSlot(pokemonId: number, name: string, primaryType = 'normal'): void {
+    if (this.pokemonSlots.length >= 6) return;
+
+    const slotGroup = this.fb.group({
       pokemonId: [pokemonId],
       pokemonName: [name],
-      nickname: ['', [Validators.maxLength(12)]],
-      heldItem: ['None']
+      pokemonType: [primaryType],
+      nickname: ['', Validators.maxLength(12)],
+      heldItem: ['None'],
+      evSpread: this.fb.group({
+        hp: [0, [Validators.min(0), Validators.max(252)]],
+        atk: [0, [Validators.min(0), Validators.max(252)]],
+        def: [0, [Validators.min(0), Validators.max(252)]],
+        spAtk: [0, [Validators.min(0), Validators.max(252)]],
+        spDef: [0, [Validators.min(0), Validators.max(252)]],
+        speed: [0, [Validators.min(0), Validators.max(252)]],
+      }),
     });
-    this.pokemonSlots.push(subGroupControl);
+
+    this.pokemonSlots.push(slotGroup);
   }
+
 
   removePokemonSlot(index: number): void {
     this.pokemonSlots.removeAt(index);
   }
 
   toggleCompetitiveMode(): void {
-    this.competitiveMode.set(!this.competitiveMode());
+    this.competitiveMode.update((v) => !v);
   }
 
-  onFormSubmit(): void {
-    if (this.teamForm.invalid) return;
-    const values = this.teamForm.value;
-    const isolatedIdsArray = (values.pokemonSlots as Array<{ pokemonId: number }>).map(p => p.pokemonId);
+  onTeamFormSubmit(): void {
+    if (this.teamForm.invalid) {
+      this.teamForm.markAllAsTouched();
+      return;
+    }
 
-    this.store.saveTrainerTeam(values.teamName, isolatedIdsArray);
-    this.teamForm.reset();
+    const { teamName, pokemonSlots } = this.teamForm.value as {
+      teamName: string;
+      pokemonSlots: Array<{ pokemonId: number }>;
+    };
+
+    this.store.saveTrainerTeam(
+      teamName,
+      pokemonSlots.map((p) => p.pokemonId),
+    );
+    this.teamForm.reset({ teamName: '', competitiveTier: 'OU' });
     this.pokemonSlots.clear();
+  }
+
+  onBattleLogSubmit(): void {
+    if (this.battleLogForm.invalid) {
+      this.battleLogForm.markAllAsTouched();
+      return;
+    }
+
+    const payload = {
+      ...this.battleLogForm.value,
+      trainer_id: this.stateSignal().currentTrainerId,
+    };
+
+    this.store.logBattle(payload);
+    this.battleLogForm.reset({
+      result: 'win',
+      score_trainer: 0,
+      score_opponent: 0,
+      date: new Date().toISOString().substring(0, 10),
+    });
+    this.showBattleForm.set(false);
+  }
+
+  onProfileUpdate(): void {
+    if (this.profileForm.invalid) {
+      this.profileForm.markAllAsTouched();
+      return;
+    }
+
+    this.store.updateTrainerProfile(this.stateSignal().currentTrainerId, this.profileForm.value);
+    this.showProfileForm.set(false);
+  }
+
+  confirmDeleteTeam(teamId: number): void {
+    this.store.deleteTeam(teamId);
+    this.deletingTeamId.set(null);
   }
 
   switchActiveTrainer(id: number): void {
     this.store.setTrainerId(id);
-    this.pokemonSlots.clear(); 
+    this.pokemonSlots.clear();
+    this.showBattleForm.set(false);
+    this.showProfileForm.set(false);
+  }
+
+  getEvTotal(slotIndex: number): number {
+    const ev = (this.pokemonSlots.at(slotIndex) as FormGroup).get('evSpread')?.value;
+    if (!ev) return 0;
+    return Object.values(ev as Record<string, number>).reduce((a, b) => a + (b ?? 0), 0);
+  }
+
+  buildDonutStyle(): string {
+    const data = this.teamTypeDistribution();
+    if (!data.length) return '';
+
+    const total = data.reduce((s, d) => s + d.count, 0);
+    let cumulative = 0;
+    const stops = data
+      .map((entry) => {
+        const start = (cumulative / total) * 360;
+        cumulative += entry.count;
+        const end = (cumulative / total) * 360;
+        return `${entry.color} ${start}deg ${end}deg`;
+      })
+      .join(', ');
+
+    return `background: conic-gradient(${stops})`;
+  }
+
+  buildRadialStyle(percentage: number): string {
+    const deg = (percentage / 100) * 360;
+     return `background: conic-gradient(#22c55e ${deg}deg, #e2e8f0 ${deg}deg)`;
+  }
+
+  private _formatMonthLabel(iso: string): string {
+    const [year, month] = iso.split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1);
+    return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
   }
 }

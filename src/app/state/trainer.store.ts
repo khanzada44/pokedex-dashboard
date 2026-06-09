@@ -1,6 +1,6 @@
 import { Injectable, inject, DestroyRef, signal, computed } from '@angular/core';
 import { BehaviorSubject, throwError, interval } from 'rxjs';
-import { tap, catchError, retry, switchMap, map } from 'rxjs/operators';
+import { tap, catchError, retry, switchMap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Trainer } from '../models/trainer.model';
 import { Team } from '../models/team.model';
@@ -8,12 +8,14 @@ import { Battle, BattleLogEntry } from '../models/battle.model';
 import { TrainerService } from '../services/trainer.service';
 import { BattleGraphqlService } from '../services/battle.service';
 
+// ─── State Shape ─────────────────────────────────────────────────────────────
+
 export interface LocalTrainerState {
   currentTrainerId: number;
   trainers: Trainer[];
   teams: Team[];
   battles: Battle[];
-  battleLogs: BattleLogEntry[]; // New field
+  battleLogs: BattleLogEntry[];
   loading: boolean;
   error: string | null;
 }
@@ -22,42 +24,68 @@ const initialState: LocalTrainerState = {
   currentTrainerId: 1,
   trainers: [],
   teams: [
-    { id: 1, trainer_id: 1, name: "Kanto Starters", pokemon_ids: [25, 6], created_at: new Date().toISOString() }
+    {
+      id: 1,
+      trainer_id: 1,
+      name: 'Kanto Starters',
+      pokemon_ids: [25, 6],
+      created_at: new Date().toISOString()
+    }
   ],
   battles: [],
-  battleLogs: [], // Initialized
+  battleLogs: [],
   loading: false,
   error: null
 };
 
-@Injectable({
-  providedIn: 'root'
-})
-export class TrainerDashboardStore {
-  trainer() {
-    throw new Error('Method not implemented.');
-  }
-  teams = signal<any[]>([]); // Saved teams
-  selectedPokemon = signal<any[]>([])
-  allTeams = computed(() => this.teams())
-  private trainerService = inject(TrainerService);
-  private battleService = inject(BattleGraphqlService);
-  private destroyRef = inject(DestroyRef);
+// ─── Store ────────────────────────────────────────────────────────────────────
 
+@Injectable({ providedIn: 'root' })
+export class TrainerDashboardStore {
+
+  // ── DI ──────────────────────────────────────────────────────────────────────
+  private trainerService = inject(TrainerService);
+  private battleService  = inject(BattleGraphqlService);
+  private destroyRef     = inject(DestroyRef);
+
+  // ── Signals (used by components directly) ───────────────────────────────────
+  /** Signal holding all saved teams (mirrors state$.teams for component use) */
+  teams = signal<Team[]>([]);
+
+  /** Signal holding the currently selected Pokémon for team-builder */
+  selectedPokemon = signal<any[]>([]);
+
+  /** Derived signal: all teams (alias for templates that prefer signal API) */
+  allTeams = computed(() => this.teams());
+
+  // ── BehaviorSubject Core ─────────────────────────────────────────────────────
   private state$ = new BehaviorSubject<LocalTrainerState>(initialState);
+
+  /** Public observable stream consumed via toSignal() in components */
   public state = this.state$.asObservable();
 
   constructor() {
     this.initLiveBattleFeed();
   }
 
+  // ── Snapshot Helper ──────────────────────────────────────────────────────────
+
+  /**
+   * Returns the current synchronous snapshot of the state.
+   * Use only when you need the value outside an observable chain.
+   */
   get snapshot(): LocalTrainerState {
     return this.state$.getValue();
   }
 
+  // ── Private Methods ──────────────────────────────────────────────────────────
+
   /**
-   * Initializes polling to fetch live battle logs every 5 seconds.
-   * Note: Polling is used because json-graphql-server does not support true WebSockets.
+   * Initialises polling to simulate a live battle-log feed every 5 seconds.
+   *
+   * NOTE: True WebSocket subscriptions are not supported by json-graphql-server.
+   * RxJS interval(5000) + switchMap is used instead to poll for new entries
+   * and emit only the latest batch into the state.
    */
   private initLiveBattleFeed(): void {
     interval(5000).pipe(
@@ -69,16 +97,21 @@ export class TrainerDashboardStore {
     });
   }
 
+  // ── Public Actions ────────────────────────────────────────────────────────────
+
   /**
-   * Sets the active trainer ID for the dashboard view.
-   * @param id - The ID of the trainer to set as active.
+   * Sets the active trainer ID.
+   * All computed selectors in the component re-evaluate automatically.
+   *
+   * @param id - Trainer ID to activate
    */
   setTrainerId(id: number): void {
     this.state$.next({ ...this.snapshot, currentTrainerId: id });
   }
 
   /**
-   * Fetches all trainer, team, and battle data from the GraphQL backend.
+   * Fetches all trainers, teams, and battles from the local GraphQL server.
+   * Retries up to 3 times with a 1-second delay on failure.
    */
   loadDashboardData(): void {
     this.state$.next({ ...this.snapshot, loading: true, error: null });
@@ -87,82 +120,171 @@ export class TrainerDashboardStore {
       retry({ count: 3, delay: 1000 }),
       tap(response => {
         const data = response.data;
+        const newTeams = data.allTeams?.length ? data.allTeams : this.snapshot.teams;
+
         this.state$.next({
           ...this.snapshot,
-          trainers: data.allTrainers || [],
-          teams: data.allTeams?.length ? data.allTeams : this.snapshot.teams,
-          battles: data.allBattles || [],
-          battleLogs: data.allBattleLogs || [],
-          loading: false
+          trainers:   data.allTrainers  ?? [],
+          teams:      newTeams,
+          battles:    data.allBattles   ?? [],
+          battleLogs: data.allBattleLogs ?? [],
+          loading:    false
         });
+
+        // Keep signal in sync
+        this.teams.set(newTeams);
       }),
       catchError(err => {
-        this.state$.next({ ...this.snapshot, loading: false, error: 'Failed to fetch dashboard records.' });
+        this.state$.next({
+          ...this.snapshot,
+          loading: false,
+          error: 'Failed to load dashboard data. Is the local server running?'
+        });
         return throwError(() => err);
       })
     ).subscribe();
   }
 
   /**
-   * Optimistically saves a new team and updates the UI state.
-   * @param teamName - Name of the new team
-   * @param pokemonIds - Array of Pokemon IDs
+   * Saves a new team using an optimistic update pattern:
+   * 1. Immediately inserts a local copy into state (instant UI feedback).
+   * 2. Calls the mutation; rolls back and alerts on failure.
+   *
+   * @param teamName  - Display name for the team
+   * @param pokemonIds - Array of Pokédex IDs (1–6 entries)
    */
   saveTrainerTeam(teamName: string, pokemonIds: number[]): void {
-    const oldState = { ...this.snapshot };
-    const simulatedId = Math.floor(Math.random() * 10000);
+    const previousState = { ...this.snapshot, teams: [...this.snapshot.teams] };
 
-    const newTeam: Team = {
-      id: simulatedId,
-      trainer_id: this.snapshot.currentTrainerId,
-      name: teamName,
+    const optimisticTeam: Team = {
+      id:          Math.floor(Math.random() * 100_000),
+      trainer_id:  this.snapshot.currentTrainerId,
+      name:        teamName,
       pokemon_ids: pokemonIds,
-      created_at: new Date().toISOString()
+      created_at:  new Date().toISOString()
     };
 
-    this.state$.next({
-      ...this.snapshot,
-      teams: [...this.snapshot.teams, newTeam]
-    });
+    const updatedTeams = [...this.snapshot.teams, optimisticTeam];
+    this.state$.next({ ...this.snapshot, teams: updatedTeams });
+    this.teams.set(updatedTeams);
 
-    this.trainerService.createNewTeam(newTeam).pipe(
+    this.trainerService.createNewTeam(optimisticTeam).pipe(
       catchError(error => {
-        this.state$.next(oldState);
-        alert('Server Issue! Team database me save nahi ho saki.');
+        // Rollback on error
+        this.state$.next(previousState);
+        this.teams.set(previousState.teams);
+        alert('Server error: team was not saved. Please try again.');
         return throwError(() => error);
       })
     ).subscribe();
   }
 
   /**
-   * Adds Pokemon to an existing team with boundary constraints.
-   * @param teamId - ID of the team to update
-   * @param newPokemonIds - IDs to add
+   * Deletes a team by ID with optimistic removal.
+   * Rolls back if the server mutation fails.
+   *
+   * @param teamId - ID of the team to remove
    */
-  addPokemonToTeam(teamId: number, newPokemonIds: number[]): void {
-    const currentState = this.snapshot;
-    const previousStateBackup = { ...currentState };
+  deleteTeam(teamId: number): void {
+    const previousState = { ...this.snapshot, teams: [...this.snapshot.teams] };
 
-    const teamsCopy = currentState.teams.map(t => ({ ...t, pokemon_ids: [...t.pokemon_ids] }));
-    const targetTeam = teamsCopy.find(t => t.id === teamId);
+    const updatedTeams = this.snapshot.teams.filter(t => t.id !== teamId);
+    this.state$.next({ ...this.snapshot, teams: updatedTeams });
+    this.teams.set(updatedTeams);
 
-    if (!targetTeam) return;
+    this.trainerService.deleteTeam(teamId.toString()).pipe(
+      catchError(err => {
+        this.state$.next(previousState);
+        this.teams.set(previousState.teams);
+        alert('Failed to delete team from server.');
+        return throwError(() => err);
+      })
+    ).subscribe();
+  }
 
-    if (targetTeam.pokemon_ids.length + newPokemonIds.length > 6) {
-      alert(`Validation Boundary Error: Lineup cannot exceed 6 slots total.`);
-      return;
-    }
+  /**
+   * Logs a new battle result via mutation.
+   * Appends to local battles list optimistically.
+   *
+   * @param payload - Battle fields: opponent_name, team_id, result, scores, date, trainer_id
+   */
+  logBattle(payload: Omit<Battle, 'id'>): void {
+    const previousState = { ...this.snapshot, battles: [...this.snapshot.battles] };
 
-    targetTeam.pokemon_ids = [...targetTeam.pokemon_ids, ...newPokemonIds];
+    const optimisticBattle: Battle = {
+      id: Math.floor(Math.random() * 100_000),
+      ...payload
+    };
+
     this.state$.next({
-      ...currentState,
-      teams: teamsCopy
+      ...this.snapshot,
+      battles: [...this.snapshot.battles, optimisticBattle]
     });
 
-    this.trainerService.updateTeam(teamId.toString(), targetTeam.pokemon_ids).pipe(
+    this.trainerService.logBattle(payload).pipe(
       catchError(err => {
-        this.state$.next(previousStateBackup);
-        alert('Failed to sync team update with server.');
+        this.state$.next(previousState);
+        alert('Failed to log battle. Please try again.');
+        return throwError(() => err);
+      })
+    ).subscribe();
+  }
+
+  /**
+   * Updates a trainer's profile fields (name, region, badge_count).
+   * Applies optimistic update; rolls back on server error.
+   *
+   * @param trainerId - ID of the trainer to update
+   * @param changes   - Partial trainer fields to apply
+   */
+  updateTrainerProfile(trainerId: number, changes: Partial<Trainer>): void {
+    const previousState = { ...this.snapshot, trainers: [...this.snapshot.trainers] };
+
+    const updatedTrainers = this.snapshot.trainers.map(t =>
+      t.id === trainerId ? { ...t, ...changes } : t
+    );
+
+    this.state$.next({ ...this.snapshot, trainers: updatedTrainers });
+
+    this.trainerService.updateTrainerProfile(trainerId, changes).pipe(
+      catchError(err => {
+        this.state$.next(previousState);
+        alert('Failed to update profile. Please try again.');
+        return throwError(() => err);
+      })
+    ).subscribe();
+  }
+
+  /**
+   * Adds Pokémon IDs to an existing team (max 6 total).
+   * Optimistic update with server sync and rollback.
+   *
+   * @param teamId        - ID of the team to update
+   * @param newPokemonIds - IDs to append
+   */
+  addPokemonToTeam(teamId: number, newPokemonIds: number[]): void {
+    const previousState = { ...this.snapshot, teams: this.snapshot.teams.map(t => ({ ...t, pokemon_ids: [...t.pokemon_ids] })) };
+
+    const updatedTeams = this.snapshot.teams.map(t => {
+      if (t.id !== teamId) return t;
+      if (t.pokemon_ids.length + newPokemonIds.length > 6) {
+        alert('A team cannot have more than 6 Pokémon.');
+        return t;
+      }
+      return { ...t, pokemon_ids: [...t.pokemon_ids, ...newPokemonIds] };
+    });
+
+    this.state$.next({ ...this.snapshot, teams: updatedTeams });
+    this.teams.set(updatedTeams);
+
+    const target = updatedTeams.find(t => t.id === teamId);
+    if (!target) return;
+
+    this.trainerService.updateTeam(teamId.toString(), target.pokemon_ids).pipe(
+      catchError(err => {
+        this.state$.next(previousState);
+        this.teams.set(previousState.teams);
+        alert('Failed to sync team with server.');
         return throwError(() => err);
       })
     ).subscribe();

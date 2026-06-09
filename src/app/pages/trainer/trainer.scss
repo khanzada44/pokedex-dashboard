@@ -1,67 +1,97 @@
 
-$slate-dark-gradient: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-$executive-light-bg: #f8fafc;
-$card-border-subtle: #e2e8f0;
-$text-slate-muted: #64748b;
-  
+$slate-dark-gradient : linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+$executive-bg        : #f1f5f9;
+$card-border         : #e2e8f0;
+$text-muted-slate    : #64748b;
+$primary-blue        : #3b82f6;
+$success-green       : #22c55e;
+$danger-red          : #ef4444;
+$warning-amber       : #f59e0b;
+
 .trainer-dashboard-container {
   display: flex;
   min-height: 100vh;
-  background-color: $executive-light-bg;
+  background-color: $executive-bg;
   font-family: Roboto, "Helvetica Neue", sans-serif;
-
-  .dashboard-workspace-stream {
-    flex-grow: 1;
-    padding: 2rem;
-    overflow-y: auto;
-    height: 100vh;
-    box-sizing: border-box;
-  }
 }
 
-// 1. Angular Material Custom Button Toggle Row
+.dashboard-workspace-stream {
+  flex-grow: 1;
+  padding: 2rem;
+  overflow-y: auto;
+  height: 100vh;
+  box-sizing: border-box;
+}
 .profile-switch-toolbar {
-  margin-bottom: 2rem;
+  margin-bottom: 1.75rem;
 
   .toolbar-label {
-    text-transform: uppercase;
-    color: $text-slate-muted;
-    font-weight: 700;
-    font-size: 0.725rem;
     display: block;
-    margin-bottom: 0.75rem;
-    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: $text-muted-slate;
+    font-weight: 700;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.6rem;
   }
 
   .custom-toggle-group {
-    border: 1px solid $card-border-subtle !important;
-    background-color: #ffffff;
+    border: 1px solid $card-border !important;
+    background: #fff;
     border-radius: 8px;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
     padding: 2px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.04);
 
     mat-button-toggle {
       border-left: none !important;
-      background-color: transparent;
+      background: transparent;
       font-weight: 500;
       color: #475569;
 
       &.mat-button-toggle-checked {
-        background-color: #3b82f6 !important;
-        color: #ffffff !important;
+        background-color: var(--mat-sys-primary) !important;
+        color: #fff !important;
         border-radius: 6px;
       }
     }
   }
 }
 
-// 2. Identity Presentation Top Elevation Card
+.error-banner {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: .75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: .875rem;
+  font-weight: 500;
+}
+
+.layout-sync-loader-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  background: #fff;
+  border: 1px solid $card-border;
+  border-radius: 12px;
+  margin: 4rem auto;
+  max-width: 460px;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,.05);
+  text-align: center;
+
+  .loader-primary-text   { color: #0f172a; font-weight: 700; margin: 1rem 0 .25rem; }
+  .loader-secondary-text { color: $text-muted-slate; font-size: .8rem; margin: 0; }
+}
+
 .trainer-hero-profile-card {
-  background: $slate-dark-gradient !important;
-  color: #ffffff !important;
+  background-color: var(--mat-sys-primary) !important;
+  color: #fff !important;
   border-radius: 12px !important;
-  margin-bottom: 2rem;
-  box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.08) !important;
+  margin-bottom: 1.75rem;
+  box-shadow: 0 10px 15px -3px rgba(15,23,42,.12) !important;
   border: none !important;
 
   .hero-content-layout {
@@ -70,7 +100,7 @@ $text-slate-muted: #64748b;
     align-items: center;
     flex-wrap: wrap;
     gap: 1.5rem;
-    padding: 2rem !important;
+    padding: 1.75rem 2rem !important;
   }
 
   .identity-block {
@@ -80,41 +110,42 @@ $text-slate-muted: #64748b;
 
     .trainer-avatar-thumbnail {
       border-radius: 50%;
-      background-color: #ffffff;
-      padding: 6px;
-      width: 76px;
-      height: 76px;
+      background: #fff;
+      padding: 5px;
+      width: 72px;
+      height: 72px;
       object-fit: contain;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,.15);
     }
 
     .trainer-title-identity {
-      font-size: 1.75rem;
+      font-size: 1.6rem;
       font-weight: 700;
-      margin: 0 0 0.5rem 0;
-      letter-spacing: -0.02em;
+      margin: 0 0 .5rem;
+      letter-spacing: -.02em;
       text-transform: capitalize;
     }
 
     .badge-row {
       display: flex;
-      gap: 0.5rem;
-      
+      gap: .5rem;
+      flex-wrap: wrap;
+
       .region-badge {
-        background: rgba(245, 158, 11, 0.2);
+        background: rgba(245,158,11,.2);
         color: #fbbf24;
-        padding: 4px 12px;
+        padding: 3px 10px;
         border-radius: 99px;
-        font-size: 0.75rem;
+        font-size: .72rem;
         font-weight: 600;
       }
 
       .rank-badge {
-        background: rgba(6, 182, 212, 0.2);
+        background: rgba(6,182,212,.2);
         color: #22d3ee;
-        padding: 4px 12px;
+        padding: 3px 10px;
         border-radius: 99px;
-        font-size: 0.75rem;
+        font-size: .72rem;
         font-family: monospace;
       }
     }
@@ -123,254 +154,520 @@ $text-slate-muted: #64748b;
   .analytics-metrics-block {
     display: flex;
     align-items: center;
+    gap: .5rem;
+    flex-wrap: wrap;
 
     .analytics-stat-node {
       text-align: center;
-      padding: 0 2rem;
+      padding: 0 1.25rem;
 
-      &.border-divider {
-        border-right: 1px solid rgba(255, 255, 255, 0.15);
-      }
+      &.border-divider { border-right: 1px solid rgba(255,255,255,.12); }
 
       .stat-metric-value {
         margin: 0;
-        font-size: 1.85rem;
+        font-size: 1.75rem;
         font-weight: 800;
       }
 
       .stat-metric-label {
-        color: rgba(255, 255, 255, 0.5);
-        text-transform: uppercase;
-        font-size: 0.7rem;
-        letter-spacing: 0.05em;
-        margin-top: 0.25rem;
         display: block;
+        color: rgba(255,255,255,.45);
+        font-size: .65rem;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        margin-top: .2rem;
+      }
+    }
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: .75rem;
+    flex-wrap: wrap;
+
+    .hero-action-btn {
+      color: rgba(255,255,255,.85) !important;
+      border-color: rgba(255,255,255,.25) !important;
+      font-size: .8rem !important;
+      border-radius: 6px !important;
+
+      &:hover {
+        background: rgba(255,255,255,.08) !important;
+        color: #fff !important;
       }
     }
   }
 }
 
-// 3. Grid Workspace Splitting Base Architecture Layout
-.workspace-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 2rem;
+.collapsible-panel {
+  background: #fff !important;
+  border: 1px solid $card-border !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,.04) !important;
 
-  @media(max-width: 992px) {
-    grid-template-columns: 1fr;
+  .profile-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: .75rem;
+  }
+
+  .form-actions-row {
+    display: flex;
+    gap: .75rem;
+    margin-top: 1rem;
+    justify-content: flex-end;
   }
 }
 
+.charts-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+
+  @media (max-width: 1100px) { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 768px)  { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: #fff !important;
+  border: 1px solid $card-border !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,.03) !important;
+
+  &--narrow { min-height: 200px; }
+
+  .chart-empty-state {
+    text-align: center;
+    padding: 2rem 1rem;
+  }
+}
+
+// Bar Chart
+.bar-chart-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  padding: .5rem 0;
+}
+
+.bar-group {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+
+  .bar-label {
+    width: 52px;
+    font-size: .7rem;
+    font-weight: 600;
+    color: $text-muted-slate;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .bar-track {
+    flex-grow: 1;
+    display: flex;
+    height: 24px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #f1f5f9;
+  }
+
+  .bar-win, .bar-loss {
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    transition: width .4s cubic-bezier(.4, 0, .2, 1);
+    min-width: 0;
+    overflow: hidden;
+
+    .bar-value {
+      font-size: .65rem;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+    }
+  }
+
+  .bar-win  { background: #22c55e; }
+  .bar-loss { background: #ef4444; }
+}
+
+// Donut Chart (CSS conic-gradient)
+.donut-chart-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: .5rem 0;
+}
+
+.donut-visual {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .75rem;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .legend-label {
+    flex-grow: 1;
+    color: #1e293b;
+    font-weight: 500;
+    text-transform: capitalize;
+  }
+
+  .legend-count {
+    color: $text-muted-slate;
+    font-family: monospace;
+  }
+}
+
+// Radial Win Rate
+.radial-progress {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radial-inner {
+  width: 84px;
+  height: 84px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  .radial-value {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1;
+  }
+
+  .radial-sub {
+    font-size: .6rem;
+    color: $text-muted-slate;
+    margin-top: .2rem;
+    font-family: monospace;
+  }
+}
+
+.weakness-advisory-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: .75rem;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #b45309;
+  padding: .75rem 1rem;
+  border-radius: 8px;
+  font-size: .85rem;
+  margin-bottom: 1.75rem;
+}
+
+.type-chip {
+  display: inline-block;
+  color: #fff;
+  font-size: .7rem;
+  font-weight: 700;
+  padding: 1px 8px;
+  border-radius: 99px;
+  text-transform: capitalize;
+  margin: 0 2px;
+}
+
+.workspace-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.75rem;
+
+  @media (max-width: 992px) { grid-template-columns: 1fr; }
+}
+
 .panel-header-title {
-  font-size: 1.15rem !important;
+  font-size: 1.1rem !important;
   font-weight: 700 !important;
   color: #1e293b;
 }
 
 .panel-header-sub {
-  font-size: 1rem !important;
+  font-size: .95rem !important;
   font-weight: 600 !important;
   color: #334155;
 }
-
-// 4. Operational Form Elements & Inputs Cards Styles
-.form-canvas-card, .history-registry-card, .battle-logs-card {
-  background-color: #ffffff !important;
+.form-canvas-card,
+.history-registry-card,
+.battle-logs-card {
+  background: #fff !important;
+  border: 1px solid $card-border !important;
   border-radius: 12px !important;
-  border: 1px solid $card-border-subtle !important;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02) !important;
-}
-
-.history-registry-card {
-  margin-top: 2rem;
-}
-
-.roster-alert-banner {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  background-color: #fffbeb;
-  border: 1px solid #fde68a;
-  color: #b45309;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,.025) !important;
 }
 
 .toggle-regulation-bar {
   background: #f8fafc;
-  padding: 1rem;
+  padding: .875rem 1rem;
   border-radius: 8px;
   border: 1px solid #f1f5f9;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .regulation-protocol-alert {
-  background-color: rgba(59, 130, 246, 0.05);
-  border-left: 4px solid #3b82f6;
+  background: rgba(59,130,246,.05);
+  border-left: 3px solid $primary-blue;
   padding: 1rem;
   border-radius: 0 8px 8px 0;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 
-  .alert-title {
-    display: block;
-    font-weight: 700;
-    color: #1d4ed8;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    margin-bottom: 0.25rem;
-  }
   .alert-desc {
     color: #475569;
-    font-size: 0.825rem;
+    font-size: .8rem;
     margin: 0;
   }
 }
 
-// 5. Responsive Grid Matrices & Slots Allocation Containers
-.slots-responsive-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.full-width-span {
-  grid-column: 1 / -1;
-}
+.composition-nodes-section { margin-top: 1.25rem; }
 
 .section-header-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-top: 1.5rem;
-  margin-bottom: 0.5rem;
-  
+  align-items: flex-start;
+  margin-bottom: .5rem;
+  gap: .5rem;
+  flex-wrap: wrap;
+
   .composition-title {
     font-weight: 700;
-    color: $text-slate-muted;
+    color: $text-muted-slate;
     text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.025em;
+    font-size: .7rem;
+    letter-spacing: .025em;
     margin: 0;
+  }
+
+  .add-slot-actions {
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+
+    button { font-size: .72rem !important; }
   }
 }
 
+
+.slots-responsive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 1rem;
+  margin-top: .75rem;
+}
+
+.full-width-span { grid-column: 1 / -1; }
+
 .pokemon-matrix-input-slot-card {
-  border: 1px solid $card-border-subtle !important;
+  border: 1px solid $card-border !important;
   border-radius: 8px !important;
   box-shadow: none !important;
   padding: 1rem !important;
   position: relative;
-  background-color: #ffffff !important;
-  transition: all 0.2s ease-in-out;
+  background: #fff !important;
+  transition: all .2s ease;
 
   &:hover {
-    border-color: #3b82f6 !important;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08) !important;
+    border-color: $primary-blue !important;
+    box-shadow: 0 4px 12px rgba(59,130,246,.08) !important;
     transform: translateY(-2px);
   }
-.parent-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;     
-  min-height: 100%;        
-}
+
   .close-slot-btn {
     position: absolute;
     top: 6px;
-    bleed: 6px;
+    right: 6px;
     background: transparent;
     border: none;
     color: #94a3b8;
     cursor: pointer;
-    font-size: 1.15rem;
+    font-size: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2px;
+    padding: 3px;
     border-radius: 4px;
+    line-height: 1;
 
-    &:hover {
-      background: #f1f5f9;
-      color: #64748b;
-    }
+    &:hover { background: #f1f5f9; color: #475569; }
+  }
+
+  .slot-pokemon-header {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding-bottom: .5rem;
+    border-bottom: 1px dashed $card-border;
+    margin-bottom: .5rem;
   }
 
   .slot-pokemon-name {
-    font-weight: 700 !important;
-    font-size: 0.9rem !important;
+    font-weight: 700;
+    font-size: .875rem;
     text-transform: capitalize;
-    border-bottom: 1px dashed $card-border-subtle;
-    padding-bottom: 0.5rem;
-    width: 100%;
-    display: block;
+    flex-grow: 1;
+  }
+
+  .type-badge-sm {
+    font-size: .62rem;
+    font-weight: 700;
+    color: #fff;
+    padding: 1px 7px;
+    border-radius: 99px;
+    text-transform: capitalize;
   }
 
   .slot-form-controls {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
+    gap: .4rem;
+    margin-top: .25rem;
   }
 }
 
-// Compact density overrides for standard inputs
-::v-deep .density-compact {
-  .mat-mdc-form-field-subscript-wrapper {
-    display: none !important; // Hide error space padding if not active inside grid slots
+// EV Spread Grid
+.ev-spread-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .35rem;
+  margin-top: .5rem;
+
+  .ev-total-bar {
+    grid-column: 1 / -1;
+    background: #f1f5f9;
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: .7rem;
+    font-weight: 700;
+    color: $text-muted-slate;
+    text-align: center;
+
+    &.ev-over {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
   }
-  .mat-mdc-text-field-wrapper {
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-  }
+
+  .ev-field { margin-bottom: 0; }
+}
+
+.density-compact {
+  .mat-mdc-form-field-subscript-wrapper { display: none !important; }
 }
 
 .submit-action-btn {
   border-radius: 8px !important;
   font-weight: 700 !important;
-  letter-spacing: 0.025em;
+  font-size: .78rem !important;
+  letter-spacing: .03em;
   text-transform: uppercase;
-  font-size: 0.8rem !important;
 }
 
-// 6. Registered Grid Registry Elements
 .saved-team-node {
   padding: 1rem;
-  border: 1px solid $card-border-subtle;
-  background-color: #f8fafc;
+  border: 1px solid $card-border;
+  background: #f8fafc;
   border-radius: 8px;
+  transition: border-color .2s;
 
-  .saved-team-title {
-    font-weight: 700;
-    color: #1e293b;
-    margin: 0 0 0.25rem 0;
+  &:hover { border-color: #cbd5e1; }
+
+  .saved-team-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: .25rem;
+
+    .saved-team-title {
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0;
+      font-size: .9rem;
+      max-width: 140px;
+    }
+
+    .delete-team-btn {
+      width: 28px !important;
+      height: 28px !important;
+      line-height: 28px !important;
+    }
   }
 
-  .badge-slots-counter {
-    display: inline-block;
-    background-color: #e2e8f0;
-    color: #475569;
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 4px;
+  .team-pokemon-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: .5rem;
   }
 }
 
-// 7. Right Column System Match Ledger Logs Nav List Configuration
+.pokemon-id-chip {
+  background: #e2e8f0;
+  color: #475569;
+  font-size: .65rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.delete-confirm {
+  margin-top: .75rem;
+  padding: .5rem .75rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+  font-size: .78rem;
+
+  .delete-confirm-text { flex-grow: 1; color: #b91c1c; font-weight: 600; }
+}
+.logs-tab-group {
+  .mat-mdc-tab-header { margin-bottom: 0; }
+}
+
 .battle-logs-list {
   padding-top: 0 !important;
+  max-height: 480px;
+  overflow-y: auto;
 
   .battle-log-item-wrapper {
     height: auto !important;
-    padding: 1rem 1.25rem !important;
-
-    ::v-deep .mdc-list-item__content {
-      width: 100%;
-    }
+    padding: .875rem 1.25rem !important;
   }
 
   .battle-log-item-content {
@@ -378,99 +675,133 @@ $text-slate-muted: #64748b;
     justify-content: space-between;
     align-items: flex-start;
     width: 100%;
+    gap: .75rem;
+
+    .log-meta { flex-grow: 1; min-width: 0; }
 
     .opponent-title {
       font-weight: 700;
       color: #1e293b;
-      margin: 0 0 0.25rem 0;
+      margin: 0 0 .2rem;
+      font-size: .875rem;
     }
+
     .timestamp-label {
-      color: $text-slate-muted;
-      font-family: monospace;
-      font-size: 0.725rem;
       display: block;
-      margin-bottom: 0.35rem;
+      color: $text-muted-slate;
+      font-family: monospace;
+      font-size: .7rem;
+      margin-bottom: .3rem;
     }
+
     .score-matrix-tag {
-      font-size: 0.725rem;
+      font-size: .7rem;
       background: #f1f5f9;
       color: #475569;
-      border: 1px solid $card-border-subtle;
-      padding: 2px 6px;
-      font-family: monospace;
+      border: 1px solid $card-border;
+      padding: 1px 6px;
       border-radius: 4px;
+      font-family: monospace;
     }
   }
 }
 
 .battle-badge-win {
-  background-color: #dcfce7;
+  background: #dcfce7;
   color: #15803d;
-  font-size: 0.7rem;
+  font-size: .68rem;
   font-weight: 700;
-  padding: 4px 8px;
+  padding: 3px 8px;
   border-radius: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .battle-badge-loss {
-  background-color: #fee2e2;
+  background: #fee2e2;
   color: #b91c1c;
-  font-size: 0.7rem;
+  font-size: .68rem;
   font-weight: 700;
-  padding: 4px 8px;
+  padding: 3px 8px;
   border-radius: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.live-feed-container {
+  padding: .75rem;
+  max-height: 460px;
+  overflow-y: auto;
+}
+
+.live-feed-notice {
+  font-size: .72rem;
+  color: $text-muted-slate;
+  background: #f8fafc;
+  border: 1px solid $card-border;
+  border-radius: 6px;
+  padding: .4rem .75rem;
+  margin-bottom: .75rem;
+}
+
+.live-log-entry {
+  display: flex;
+  gap: .75rem;
+  align-items: flex-start;
+  padding: .5rem .75rem;
+  border-radius: 6px;
+  margin-bottom: .4rem;
+  font-size: .78rem;
+  border-left: 3px solid transparent;
+  animation: feedSlideIn .25s ease;
+
+  &.log-success { background: #f0fdf4; border-left-color: #22c55e; color: #15803d; }
+  &.log-danger  { background: #fef2f2; border-left-color: #ef4444; color: #b91c1c; }
+  &.log-info    { background: #eff6ff; border-left-color: #3b82f6; color: #1d4ed8; }
+
+  .live-log-time {
+    font-family: monospace;
+    font-size: .68rem;
+    flex-shrink: 0;
+    opacity: .65;
+  }
+
+  .live-log-message { line-height: 1.4; }
+}
+
+.live-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background: $danger-red;
+  border-radius: 50%;
+  margin-left: 6px;
+  animation: pulse 1.5s infinite;
+  vertical-align: middle;
 }
 
 .empty-state-box {
   text-align: center;
-  color: $text-slate-muted;
+  color: $text-muted-slate;
   padding: 2rem 1rem;
-  font-size: 0.85rem;
+  font-size: .85rem;
 }
 
-// Loading Channels Overlay Matrix State Block Container View Layout
-
-// Loading Channels Overlay Matrix State Block Container View Layout
-.layout-sync-loader-wrapper {
-  display: flex;             // Flexbox enable karein
-  flex-direction: column;    // Items ko upar se neeche vertical line mein rakhne ke liye
-  align-items: center;       // Horizontal center alignment ke liye
-  justify-content: center;   // Vertical spacing balance karne ke liye
-  
-  text-align: center;
-  padding: 4rem 2rem;
-  background-color: #ffffff;
-  border: 1px solid $card-border-subtle;
-  border-radius: 12px;
-  margin: 4rem auto;
-  max-width: 460px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-
-  // Spinner wrapper or mat-spinner positioning fix
-  mat-spinner {
-    margin: 0 auto 1rem auto; // Default margin center fallback
-  }
-
-  .loader-primary-text {
-    color: #0f172a;
-    font-weight: 700;
-    margin-top: 1rem;
-    margin-bottom: 0.25rem;
-  }
-
-  .loader-secondary-text {
-    color: $text-slate-muted;
-    font-size: 0.8rem;
-    margin-bottom: 0;
-  }
-}
-
-// Core utility animations rules
 .animation-slide {
-  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: slideIn .3s cubic-bezier(.16, 1, .3, 1) forwards;
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes feedSlideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .3; }
 }
