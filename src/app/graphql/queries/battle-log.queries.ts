@@ -21,8 +21,6 @@ query GetBattleData {
 }
 `;
 
-
-// 1. All Battles fetch karne ke liye
 export const GET_BATTLES_QUERY = `
   query {
     allBattles {
@@ -37,10 +35,9 @@ export const GET_BATTLES_QUERY = `
   }
 `;
 
-// 2. Battle Logs fetch karne ke liye
 export const GET_BATTLE_LOGS_QUERY = `
   query {
-    allBattleLogs { 
+    allBattle_logs {
       id
       battle_id
       message

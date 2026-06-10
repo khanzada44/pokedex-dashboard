@@ -1,40 +1,273 @@
-.battle-container {
+.battle-log-container {
   padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
 
-  .dashboard-grid {
+  .header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 500;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+  }
+
+  .stats-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 24px;
-    
-    @media (max-width: 960px) { grid-template-columns: 1fr; }
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+
+    .stat-card {
+      text-align: center;
+      padding: 20px;
+      transition: transform 0.2s;
+
+      &:hover {
+        transform: translateY(-4px);
+      }
+
+      .stat-value {
+        font-size: 36px;
+        font-weight: bold;
+      }
+
+      .stat-label {
+        color: #666;
+        margin-top: 8px;
+      }
+
+      &.win-card .stat-value { color: #4caf50; }
+      &.loss-card .stat-value { color: #f44336; }
+      &.rate-card .stat-value { color: #2196f3; }
+    }
+  }
+
+  .battle-form-card {
+    margin-bottom: 24px;
+    animation: slideDown 0.3s ease;
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+
+      .full-width {
+        grid-column: 1 / -1;
+      }
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 20px;
+    }
+  }
+
+  .last-battle-card {
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+
+    &.win {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+
+    &.loss {
+      background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+    }
+
+    .last-battle-message {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 16px;
+
+      mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+      }
+    }
+  }
+
+  .history-card {
+    margin-bottom: 24px;
+
+    .table-wrapper {
+      overflow-x: auto;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .battle-table {
+      width: 100%;
+
+      .win-chip {
+        background-color: #4caf50;
+        color: white;
+      }
+
+      .loss-chip {
+        background-color: #f44336;
+        color: white;
+      }
+
+      .score {
+        font-weight: bold;
+        font-size: 16px;
+      }
+
+      .score-separator {
+        margin: 0 4px;
+        color: #888;
+      }
+
+      .time {
+        font-size: 11px;
+        color: #888;
+        display: block;
+      }
+    }
+
+    .win-row {
+      background-color: rgba(76, 175, 80, 0.05);
+    }
+
+    .loss-row {
+      background-color: rgba(244, 67, 54, 0.05);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px;
+
+      mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        color: #888;
+      }
+
+      p {
+        margin: 16px 0;
+        color: #666;
+      }
+    }
+  }
+
+  .live-feed-card {
+    .live-icon {
+      color: #f44336;
+      animation: pulse 1.5s infinite;
+    }
+
+    .feed-filters {
+      display: flex;
+      gap: 8px;
+      margin-left: auto;
+
+      button.active {
+        background-color: #e0e0e0;
+      }
+    }
+
+    .feed-container {
+      height: 300px;
+      overflow-y: auto;
+      background: #1e1e1e;
+      border-radius: 8px;
+      padding: 12px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+
+      .feed-entry {
+        padding: 8px 12px;
+        margin: 4px 0;
+        border-radius: 4px;
+        animation: slideIn 0.2s ease;
+
+        .timestamp {
+          color: #888;
+          margin-right: 12px;
+        }
+
+        &.success {
+          background: rgba(76, 175, 80, 0.2);
+          border-left: 3px solid #4caf50;
+          color: #4caf50;
+        }
+
+        &.danger {
+          background: rgba(244, 67, 54, 0.2);
+          border-left: 3px solid #f44336;
+          color: #f44336;
+        }
+
+        &.info {
+          background: rgba(33, 150, 243, 0.2);
+          border-left: 3px solid #2196f3;
+          color: #2196f3;
+        }
+      }
+
+      .empty-feed {
+        text-align: center;
+        padding: 40px;
+        color: #888;
+
+        mat-icon {
+          font-size: 48px;
+          width: 48px;
+          height: 48px;
+        }
+
+        small {
+          display: block;
+          margin-top: 8px;
+          font-size: 11px;
+        }
+      }
+    }
   }
 }
 
-.mat-mdc-card {
-  height: 100%;
-}
-
-.terminal-box {
-  background: #1a1a1a;
-  color: #00ff41;
-  padding: 16px;
-  font-family: 'Courier New', Courier, monospace;
-  height: 400px;
-  overflow-y: auto;
-  border-radius: 4px;
-
-  .log-entry {
-    margin-bottom: 8px;
-    border-bottom: 1px solid #333;
-    
-    &.success { color: #8bc34a; }
-    &.danger { color: #f44336; }
-    &.info { color: #2196f3; }
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-.win-badge { background-color: #e8f5e9; color: #2e7d32; }
-.loss-badge { background-color: #ffebee; color: #c62828; }
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

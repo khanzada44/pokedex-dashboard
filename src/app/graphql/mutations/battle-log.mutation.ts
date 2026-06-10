@@ -10,15 +10,22 @@ export const CREATE_BATTLE_MUTATION = (b: any) => `
       score_opponent: ${b.score_opponent}
     ) {
       id
+      trainer_id
+      opponent_name
+      team_id
+      result
+      date
+      score_trainer
+      score_opponent
     }
   }
 `;
 
 export const LOG_BATTLE_MUTATION = `
   mutation CreateBattle(
-    $trainer_id: ID!, 
+    $trainer_id: Int!, 
     $opponent_name: String!, 
-    $team_id: ID!, 
+    $team_id: Int!, 
     $result: String!, 
     $date: String!, 
     $score_trainer: Int!, 
@@ -41,6 +48,57 @@ export const LOG_BATTLE_MUTATION = `
       date
       score_trainer
       score_opponent
+    }
+  }
+`;
+
+export const CREATE_BATTLE_LOG_MUTATION = `
+  mutation CreateBattleLog(
+    $battle_id: Int!,
+    $message: String!,
+    $severity: String!,
+    $timestamp: String!
+  ) {
+    createBattle_log(
+      battle_id: $battle_id,
+      message: $message,
+      severity: $severity,
+      timestamp: $timestamp
+    ) {
+      id
+      battle_id
+      message
+      severity
+      timestamp
+    }
+  }
+`;
+
+export const UPDATE_BATTLE_MUTATION = `
+  mutation UpdateBattle(
+    $id: Int!,
+    $result: String,
+    $score_trainer: Int,
+    $score_opponent: Int
+  ) {
+    updateBattle(
+      id: $id,
+      result: $result,
+      score_trainer: $score_trainer,
+      score_opponent: $score_opponent
+    ) {
+      id
+      result
+      score_trainer
+      score_opponent
+    }
+  }
+`;
+
+export const DELETE_BATTLE_MUTATION = `
+  mutation RemoveBattle($id: ID!) {
+    removeBattle(id: $id) {
+      id
     }
   }
 `;
