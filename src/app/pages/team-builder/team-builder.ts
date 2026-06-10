@@ -1,36 +1,10 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  computed,
-  effect,
-  inject,
-  OnInit,
-  signal
-} from '@angular/core';
-import { MatTabsModule } from '@angular/material/tabs';
-
-import {
-  AbstractControl,
-  AsyncValidatorFn,
-  FormArray,
-  FormBuilder,
-  ReactiveFormsModule,
-  ValidationErrors,
-  Validators
-} from '@angular/forms';
-
+import { ChangeDetectionStrategy, Component,DestroyRef,computed,effect, inject,OnInit,signal} from '@angular/core';
+import { AbstractControl, AsyncValidatorFn, FormArray, FormBuilder, ReactiveFormsModule, ValidationErrors,Validators} from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import {
-  CdkDragDrop,
-  DragDropModule,
-  moveItemInArray
-} from '@angular/cdk/drag-drop';
-
+import { CdkDragDrop, DragDropModule,moveItemInArray} from '@angular/cdk/drag-drop';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { debounceTime, delay, map, Observable, of, retry } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
 import { MaterialModule } from '../../shared/material/material-module';
 import { TrainerDashboardStore } from '../../state/trainer.store';
 import { TrainerService } from '../../services/trainer.service';
@@ -41,14 +15,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-team-builder',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MaterialModule,
-    MatTabsModule,
-    DragDropModule,
-    Sidebar,
-    ScrollingModule
+  imports: [CommonModule, ReactiveFormsModule, MaterialModule, DragDropModule,Sidebar,ScrollingModule
   ],
   templateUrl: './team-builder.html',
   styleUrl: './team-builder.scss',

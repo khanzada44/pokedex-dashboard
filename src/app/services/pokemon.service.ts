@@ -2,11 +2,7 @@ import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { map, Observable } from 'rxjs';
 import { gql } from 'apollo-angular';
-import {
-  GET_POKEMONS_QUERY,
-  GET_POKEMON_DETAILS_QUERY,
-  GET_ALL_POKEMON,
-} from '../graphql/queries/pokemon.queries';
+import { GET_POKEMONS_QUERY, GET_POKEMON_DETAILS_QUERY, GET_ALL_POKEMON,} from '../graphql/queries/pokemon.queries';
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +10,6 @@ import {
 export class PokemonService {
   constructor(private apollo: Apollo) {}
 
-  //  Fetch paginated Pokémon list from GraphQL API
   getPokemons(limit: number, offset: number, search: string, type: string): Observable<any> {
     return this.apollo
       .watchQuery({
@@ -29,7 +24,7 @@ export class PokemonService {
       .valueChanges.pipe(map((res: any) => res.data));
   }
 
-  // Fetch Pokémon details by ID
+
   getPokemonDetails(id: number): Observable<any> {
     return this.apollo
       .watchQuery({
@@ -41,7 +36,7 @@ export class PokemonService {
       .valueChanges.pipe(map((res: any) => res.data));
   }
 
-  //  Fetch simplified Pokémon list (for dropdowns/selectors)
+
   fetchAllPokemon(): Observable<any[]> {
     return this.apollo
       .watchQuery({

@@ -5,7 +5,7 @@ import { PokemonService } from '../services/pokemon.service';
 import { Pokemon } from '../models/pokemon.model';
 
 @Injectable({
-  providedIn: 'root' // Yeh poori app mein single instance (Singleton) banata hai
+  providedIn: 'root'
 })
 export class PokemonStore {
   public isDetailsLoading$ = new BehaviorSubject<boolean>(false);

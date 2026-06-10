@@ -20,8 +20,17 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatChipsModule } from '@angular/material/chips';
 import { CommonModule } from '@angular/common';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTabsModule } from '@angular/material/tabs';
+
+
+
+
+
+
+
 const material = [
   MatButtonModule,
+  MatTabsModule,
   MatProgressBarModule,
   MatButtonToggleModule,
   MatSelectModule,

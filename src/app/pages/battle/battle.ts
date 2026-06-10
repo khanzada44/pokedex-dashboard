@@ -35,9 +35,8 @@ export class Battle implements OnInit {
 public loadBattles(): void {
   this.service.getBattles().subscribe({
     next: (res: any) => {
-      // JSON structure check: agar direct array aa raha hai toh:
-      const data = res?.data?.allBattles || res; 
-      this.battles.set([...data]); // Array ko spread karke set karein taake reference change ho
+      const data = res?.data?.allBattles || []; 
+      this.battles.set([...data]);
       console.log('UI Data updated:', this.battles());
     },
     error: (err) => console.error("Error:", err)

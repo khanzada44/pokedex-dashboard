@@ -8,7 +8,7 @@
   padding: 24px 16px;
   box-sizing: border-box;
 
-  // Top Section
+
   .sidebar-logo-section {
     display: flex;
     flex-direction: column;
@@ -23,7 +23,6 @@
       object-fit: contain;
     }
 
-    // Switch User Button Customization
     .switch-user-btn {
       border-color: #e0e0e0 !important;
       color: #000000 !important;
@@ -34,7 +33,6 @@
     }
   }
 
-  // Navigation Links Styling
   .sidebar-menu {
     padding-top: 0;
 
@@ -43,43 +41,36 @@
       height: 48px !important;
       border-radius: 4px;
 
-      // Icon and Text Alignment
       .mdc-list-item__content {
         display: flex;
         align-items: center;
       }
 
-      // Icon Color & Spacing (Exact Black/Dark Gray in screenshot)
       mat-icon {
         color: #212121 !important;
         margin-right: 16px !important;
         font-size: 22px;
       }
 
-      // Text Formatting
       span[matListItemTitle] {
         color: #212121 !important;
         font-size: 0.95rem;
         font-weight: 500;
       }
 
-      // Hover Effect (Industry Best Practice)
       &:hover {
         background-color: var(--mat-button-filled-container-color, var(--mat-sys-primary));
       }
 
-      /* TEXT */
+
       &:hover .mat-mdc-list-item-title {
         color: white !important;
       }
 
-      /* ICON */
       &:hover mat-icon {
         color: white !important;
       }
     }
-
-    // Optional: Highlight active route
     .active-link {
       background-color: var(--mat-button-filled-container-color, var(--mat-sys-primary)) !important;
 

@@ -44,7 +44,6 @@ export class Pokedex implements OnInit, AfterViewInit {
   private trainerStore = inject(TrainerDashboardStore);
   private prefetchedIds = new Set<number>(); 
 
-  /** Signal for details panel open/close state */
   isDetailsPanelOpen = signal<boolean>(false);
 
   pageSize = 10;
@@ -68,10 +67,7 @@ export class Pokedex implements OnInit, AfterViewInit {
   selection = new SelectionModel<any>(true, []);
   chartInstance: Chart | null = null;
 
-  /**
-   * Static map of Pokémon ID → YouTube video ID.
-   * Task 7: fallback to official artwork when ID not present.
-   */
+
   private videoMap: Record<number, string> = {
     1: 'm0D_SscSfs8',
     4: '870Xv5U_mCE',
@@ -79,16 +75,10 @@ export class Pokedex implements OnInit, AfterViewInit {
     13: 'kbyL7b3pCQQ',
   };
 
-  /** @inheritdoc */
   ngOnInit(): void {
     this.pokemonStore.setPage(0);
   }
 
-  /**
-   * After view init: wire up sort changes and subscribe to
-   * selectedPokemonDetails$ to reactively re-render radar chart
-   * whenever a new Pokémon is selected.
-   */
   ngAfterViewInit(): void {
     if (this.sort) {
       this.sort.sortChange
@@ -98,7 +88,6 @@ export class Pokedex implements OnInit, AfterViewInit {
         });
     }
 
-    // Reactively update radar chart when pokemon details change
     this.pokemonStore.selectedPokemonDetails$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((pokemon) => {
@@ -112,13 +101,7 @@ export class Pokedex implements OnInit, AfterViewInit {
       });
   }
 
-  /**
-   * Sanitizes and returns a YouTube embed URL for the given Pokémon ID.
-   * Returns null if no video is mapped — template shows fallback artwork.
-   *
-   * @param pokemonId - Pokémon dex ID
-   * @returns SafeResourceUrl or null
-   */
+
   getVideoUrl(pokemonId: number): SafeResourceUrl | null {
     const videoId = this.videoMap[pokemonId];
     if (!videoId) return null;
@@ -127,12 +110,7 @@ export class Pokedex implements OnInit, AfterViewInit {
     );
   }
 
-  /**
-   * Plays the official Pokémon cry audio via HTML5 Audio API.
-   * Source: PokeAPI cries repository.
-   *
-   * @param pokemonId - Pokémon dex ID
-   */
+
   playPokemonCry(pokemonId: number): void {
     const audio = new Audio(
       `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${pokemonId}.ogg`,
@@ -141,13 +119,7 @@ export class Pokedex implements OnInit, AfterViewInit {
     audio.play().catch((err) => console.warn('Audio play blocked:', err));
   }
 
-  /**
-   * Initializes or re-renders the Chart.js radar chart with the given stats array.
-   * Destroys any existing chart instance before creating a new one to prevent memory leaks.
-   * Animates on every update (duration: 800ms, easing: easeOutQuart).
-   *
-   * @param statsArray - Array of pokemon_v2_pokemonstat objects
-   */
+
   initRadarChart(statsArray: any[]): void {
     if (!this.radarChartCanvas) return;
 
@@ -199,67 +171,39 @@ export class Pokedex implements OnInit, AfterViewInit {
     });
   }
 
-  /**
-   * Opens the details side panel for the selected Pokémon row.
-   * Triggers store fetch which reactively updates the panel via selectedPokemonDetails$.
-   * No setTimeout needed — query now returns height, weight, stats, moves, evolution directly.
-   *
-   * @param pokemon - Row data from the mat-table
-   */
+
   openDetailsPanel(pokemon: any): void {
     this.pokemonStore.setSelectedPokemonId(pokemon.id);
     this.isDetailsPanelOpen.set(true);
   }
 
-  /**
-   * Returns the color class for a stat bar based on its value.
-   *
-   * @param value - base_stat number
-   * @returns CSS class string: 'low' | 'mid' | 'high'
-   */
+
   getStatClass(value: number): string {
     if (value < 50) return 'low';
     if (value < 100) return 'mid';
     return 'high';
   }
 
-  /**
-   * Returns the percentage width for a stat progress bar (max 255).
-   *
-   * @param value - base_stat number
-   * @returns percentage as number (0–100)
-   */
+
   getStatPercent(value: number): number {
     return Math.min((value / 255) * 100, 100);
   }
 
-  // ─── Table Handlers ───────────────────────────────────────────────
 
-  /** @param event - DOM input event from search field */
   onSearch(event: any): void {
     this.pokemonStore.setSearch(event.target.value);
   }
 
-  /** @param value - Selected type string from mat-select */
+
   onTypeFilter(value: string): void {
     this.pokemonStore.setType(value);
   }
 
-  /**
-   * Updates the base-stat range filter in the store.
-   *
-   * @param min - Minimum total base stats
-   * @param max - Maximum total base stats
-   */
   onRangeSliderChange(min: string | number, max: string | number): void {
     this.pokemonStore.setStatsRange(Number(min), Number(max));
   }
 
-  /**
-   * Handles paginator page change events.
-   *
-   * @param event - MatPaginator PageEvent
-   */
+
   onPageChange(event: PageEvent): void {
     this.pageSize = event.pageSize;
     this.pokemonStore.setPageSize(event.pageSize);
@@ -267,27 +211,18 @@ export class Pokedex implements OnInit, AfterViewInit {
     this.selection.clear();
   }
 
-  /**
-   * Returns true if all visible rows are selected.
-   *
-   * @param rows - Current page's row data array
-   */
+
   isAllSelected(rows: any[]): boolean {
     return this.selection.selected.length === rows.length;
   }
 
-  /**
-   * Toggles selection for all rows on current page.
-   *
-   * @param rows - Current page's row data array
-   */
+
   masterToggle(rows: any[]): void {
     this.isAllSelected(rows)
       ? this.selection.clear()
       : rows.forEach((r) => this.selection.select(r));
   }
 
-  /** Resets all active filters and clears row selection. */
   resetFilters(): void {
     this.pokemonStore.reset();
     this.selection.clear();
@@ -298,31 +233,17 @@ export class Pokedex implements OnInit, AfterViewInit {
   this.pokemonStore.prefetchPokemonDetails(id); // silent cache only
 }
 
-  /**
-   * Finds a specific stat value by stat name from the stats array.
-   *
-   * @param stats - Array of pokemon_v2_pokemonstat objects
-   * @param name - Stat name e.g. 'hp', 'attack', 'special-attack'
-   * @returns base_stat number or 0 if not found
-   */
+
   getStat(stats: any[], name: string): number {
     return stats?.find((s) => s?.pokemon_v2_stat?.name === name)?.base_stat ?? 0;
   }
 
-  /**
-   * Calculates total base stats by summing all stat values.
-   *
-   * @param stats - Array of pokemon_v2_pokemonstat objects
-   * @returns Sum of all base_stat values
-   */
+
   getTotal(stats: any[]): number {
     return stats?.reduce((sum, s) => sum + (s?.base_stat ?? 0), 0) ?? 0;
   }
 
-  /**
-   * Adds all currently selected Pokémon to the active team (team ID 1).
-   * Clears selection after operation.
-   */
+
   bulkAddToTeam(): void {
     const selectedIds = this.selection.selected.map((p) => p.id);
     if (selectedIds.length === 0) return;

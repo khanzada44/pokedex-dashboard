@@ -3,12 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { GET_TRAINER_DATA_QUERY } from '../graphql/queries/pokemon.queries';
 import { GET_TRAINER_DASHBOARD, GET_BATTLE_LOGS } from '../graphql/queries/trainer.queries';
-import {
-  UPDATE_TEAM_MUTATION,
-  DELETE_TEAM_MUTATION,
-  LOG_BATTLE_MUTATION,
-  CREATE_NEW_TEAM
-} from '../graphql/mutations/trainer.mutation';
+import { UPDATE_TEAM_MUTATION, DELETE_TEAM_MUTATION,LOG_BATTLE_MUTATION, CREATE_NEW_TEAM} from '../graphql/mutations/trainer.mutation';
 import { Trainer } from '../models/trainer.model';
 import { Battle } from '../models/battle.model';  
 import { environment } from '../../environments/environment';
