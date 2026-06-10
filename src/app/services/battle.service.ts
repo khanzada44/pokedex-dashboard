@@ -4,13 +4,14 @@ import { Observable, map, interval, switchMap, startWith, catchError, of, Behavi
 import { Battle, BattleLogEntry } from '../models/battle.model';
 import {  GET_BATTLE_DATA, GET_BATTLE_LOGS_QUERY, GET_BATTLES_QUERY } from '../graphql/queries/battle-log.queries';
 import {CREATE_BATTLE_MUTATION, LOG_BATTLE_MUTATION} from '../graphql/mutations/battle-log.mutation'
+import { environment } from '../../environments/environment';
 @Injectable({
     providedIn: 'root'
 })
 export class BattleGraphqlService {
     private readonly http = inject(HttpClient);
-    private readonly url = 'http://localhost:4000';
-    private api = 'http://localhost:4000/graphql';
+    private readonly url =  environment.apiUrl;
+    private api = environment.apiUrl;
 
     // Manual logs add karne ke liye subject
     private manualLogsSubject = new BehaviorSubject<BattleLogEntry[]>([]);

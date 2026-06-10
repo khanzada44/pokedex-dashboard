@@ -8,6 +8,7 @@ import { HttpLink } from 'apollo-angular/http';
 
 import { routes } from './app.routes';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,12 +22,12 @@ export const appConfig: ApplicationConfig = {
 
       // PokeAPI (Queries)
       const pokeApi = httpLink.create({
-        uri: 'https://beta.pokeapi.co/graphql/v1beta',
+        uri: environment.betaApiUrl,
       });
 
       // Local GraphQL server (Mutations + Subscriptions)
       const localApi = httpLink.create({
-        uri: 'http://localhost:4000/graphql',
+        uri: environment.apiUrl,
       });
 
       return {
