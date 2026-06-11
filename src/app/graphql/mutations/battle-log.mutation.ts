@@ -9,7 +9,7 @@ export const CREATE_BATTLE_MUTATION = (b: any) => `
       score_trainer: ${b.score_trainer},
       score_opponent: ${b.score_opponent}
     ) {
-      id
+      i
       trainer_id
       opponent_name
       team_id
@@ -102,3 +102,18 @@ export const DELETE_BATTLE_MUTATION = `
     }
   }
 `;
+export const UPDATE_BATTLE = `
+      mutation UpdateBattle($id: Int!, $input: UpdateBattleInput!) {
+        updateBattle(id: $id, input: $input) {
+          id
+          trainer_id
+          opponent_name
+          team_id
+          result
+          date
+          score_trainer
+          score_opponent
+        }
+      }
+`;
+

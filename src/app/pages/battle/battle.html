@@ -1,57 +1,352 @@
-<div class="dashboard">
-  <div class="stats-cards">
-    <mat-card>
-      <mat-card-content>
-        <strong>Win Rate:</strong> {{winRate()}}%
-      </mat-card-content>
-    </mat-card>
-    <mat-card>
-      <mat-card-content>
-        <strong>Total Battles:</strong> {{battles().length}}
-      </mat-card-content>
-    </mat-card>
-  </div>
-
-  <div class="grid">
-    @if (battles().length > 0) {
-      <table mat-table [dataSource]="battles()" class="mat-elevation-z8">
-        
-        <ng-container matColumnDef="opponent">
-          <th mat-header-cell *matHeaderCellDef> Opponent </th>
-          <td mat-cell *matCellDef="let b"> {{b.opponent_name}} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="date">
-          <th mat-header-cell *matHeaderCellDef> Date </th>
-          <td mat-cell *matCellDef="let b"> {{b.date | date:'mediumDate'}} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="score">
-          <th mat-header-cell *matHeaderCellDef> Score </th>
-          <td mat-cell *matCellDef="let b"> {{b.score_trainer}} - {{b.score_opponent}} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="result">
-          <th mat-header-cell *matHeaderCellDef> Result </th>
-          <td mat-cell *matCellDef="let b" [class.win]="b.result === 'win'" [class.loss]="b.result === 'loss'"> 
-            {{b.result | uppercase}} 
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="['opponent', 'date', 'score', 'result']"></tr>
-        <tr mat-row *matRowDef="let row; columns: ['opponent', 'date', 'score', 'result'];"></tr>
-      </table>
-    } @else {
-      <div class="loading-state">
-        <p>Loading battle data...</p>
-      </div>
-    }
-
-    <div class="terminal-box">
-      <h3>Live Battle Logs</h3>
-      @for (log of liveLogs(); track log.id) {
-        <div class="log-entry {{log.severity}}">{{log.message}}</div>
-      }
+<div class="battle-dashboard">
+  <!-- Header with actions -->
+  <div class="dashboard-header">
+    <h1 class="title">
+      <mat-icon>shield</mat-icon>
+      Battle Arena
+    </h1>
+    <div class="header-actions">
+      <button mat-raised-button color="primary" (click)="showForm.set(!showForm())">
+        <mat-icon>{{ showForm() ? 'visibility_off' : 'add' }}</mat-icon>
+        {{ showForm() ? 'Hide Form' : 'Log Battle' }}
+      </button>
+      <button mat-stroked-button (click)="refreshData()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+      <button mat-stroked-button (click)="exportBattleData()">
+        <mat-icon>download</mat-icon>
+        Export
+      </button>
     </div>
   </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon win-icon">
+          <mat-icon>emoji_events</mat-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Win Rate</span>
+          <span class="stat-value" [class]="winColorClass()">{{ winRate() | number:'1.0-0' }}%</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon battle-icon">
+          <mat-icon>swords</mat-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Total Battles</span>
+          <span class="stat-value">{{ battleStats().totalBattles }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon win-icon">
+          <mat-icon>thumb_up</mat-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Wins</span>
+          <span class="stat-value wins">{{ battleStats().wins }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon loss-icon">
+          <mat-icon>thumb_down</mat-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Losses</span>
+          <span class="stat-value losses">{{ battleStats().losses }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon streak-icon">
+          <mat-icon>trending_up</mat-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Current Streak</span>
+          <span class="stat-value">{{ battleStats().currentStreak }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon best-icon">
+          <mat-icon>star</mat-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Best Streak</span>
+          <span class="stat-value">{{ battleStats().bestWinStreak }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Battle Form (Conditional) -->
+  @if (showForm()) {
+    <mat-card class="battle-form-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>edit_note</mat-icon>
+          Log New Battle
+        </mat-card-title>
+        <mat-card-subtitle>Record your latest victory or defeat</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="battleForm" (ngSubmit)="onSubmitBattle()">
+          <div class="form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Opponent Name</mat-label>
+              <input matInput formControlName="opponent_name" placeholder="e.g., Gary Oak">
+              <mat-icon matSuffix>person</mat-icon>
+              @if (battleForm.get('opponent_name')?.hasError('required')) {
+                <mat-error>Opponent name is required</mat-error>
+              }
+              @if (battleForm.get('opponent_name')?.hasError('minlength')) {
+                <mat-error>Name must be at least 2 characters</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Team</mat-label>
+              <mat-select formControlName="team_id">
+                <mat-option [value]="1">Kanto Starters</mat-option>
+                <mat-option [value]="2">Johto Squad</mat-option>
+                <mat-option [value]="3">Water Specialists</mat-option>
+                <mat-option [value]="4">Rock Solid</mat-option>
+              </mat-select>
+              <mat-icon matSuffix>group</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Result</mat-label>
+              <mat-select formControlName="result">
+                <mat-option value="win">
+                  <mat-icon class="win-icon">emoji_events</mat-icon> Victory
+                </mat-option>
+                <mat-option value="loss">
+                  <mat-icon class="loss-icon">sentiment_dissatisfied</mat-icon> Defeat
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <div class="score-fields">
+              <mat-form-field appearance="outline">
+                <mat-label>Your Score</mat-label>
+                <input matInput type="number" formControlName="score_trainer" min="0" max="3">
+                <mat-icon matSuffix>star</mat-icon>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Opponent Score</mat-label>
+                <input matInput type="number" formControlName="score_opponent" min="0" max="3">
+                <mat-icon matSuffix>star_border</mat-icon>
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Battle Date</mat-label>
+              <input matInput type="date" formControlName="date">
+              <mat-icon matSuffix>calendar_today</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-actions">
+            <button mat-button type="button" (click)="showForm.set(false)">Cancel</button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="battleForm.invalid || isLoading()">
+              <mat-icon>save</mat-icon>
+              Save Battle
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading battle data...</p>
+    </div>
+  }
+
+  <!-- Battles Table -->
+  @if (!isLoading() && battles().length > 0) {
+    <mat-card class="battles-table-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>history</mat-icon>
+          Battle History
+        </mat-card-title>
+        <mat-card-subtitle>{{ battles().length }} total battles recorded</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="table-container">
+          <table mat-table [dataSource]="battles()" class="battle-table">
+            
+            <ng-container matColumnDef="sno">
+              <th mat-header-cell *matHeaderCellDef>#</th>
+              <td mat-cell *matCellDef="let battle; let i = index">{{ i + 1 }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="opponent">
+              <th mat-header-cell *matHeaderCellDef>Opponent</th>
+              <td mat-cell *matCellDef="let battle">
+                <div class="opponent-cell">
+                  <mat-icon>sports_mma</mat-icon>
+                  <strong>{{ battle.opponent_name }}</strong>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="date">
+              <th mat-header-cell *matHeaderCellDef>Date</th>
+              <td mat-cell *matCellDef="let battle">
+                {{ battle.date | date:'mediumDate' }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="score">
+              <th mat-header-cell *matHeaderCellDef>Score</th>
+              <td mat-cell *matCellDef="let battle">
+                <span class="score-badge">
+                  <span class="trainer-score">{{ battle.score_trainer }}</span>
+                  <span class="score-separator">-</span>
+                  <span class="opponent-score">{{ battle.score_opponent }}</span>
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="result">
+              <th mat-header-cell *matHeaderCellDef>Result</th>
+              <td mat-cell *matCellDef="let battle">
+                <span class="result-badge" [class]="getResultClass(battle.result)">
+                  <mat-icon>{{ getResultIcon(battle.result) }}</mat-icon>
+                  {{ battle.result | uppercase }}
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let battle">
+                <button mat-icon-button color="primary" (click)="viewBattleDetails(battle)" matTooltip="View Details">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="deleteBattle(battle.id, battle.opponent_name)" matTooltip="Delete">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns();" class="battle-row"></tr>
+          </table>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Live Battle Logs Terminal -->
+  <mat-card class="live-logs-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="live-icon">fiber_manual_record</mat-icon>
+        Live Battle Logs
+      </mat-card-title>
+      <mat-card-subtitle>Real-time updates every 5 seconds (Polling mode)</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="logs-terminal">
+        @for (log of liveLogs(); track log.id) {
+          <div class="log-entry" [class]="getLogSeverityClass(log.severity)">
+            <mat-icon class="log-icon">{{ getLogIcon(log.severity) }}</mat-icon>
+            <span class="log-time">{{ log.timestamp | date:'HH:mm:ss' }}</span>
+            <span class="log-message">{{ log.message }}</span>
+          </div>
+        }
+        @if (liveLogs().length === 0) {
+          <div class="no-logs">
+            <mat-icon>chat</mat-icon>
+            <p>Waiting for battle logs...</p>
+            <small>Polling active - checking every 5 seconds</small>
+          </div>
+        }
+      </div>
+    </mat-card-content>
+    <mat-card-footer>
+      <div class="polling-info">
+        <mat-icon>sync</mat-icon>
+        <span>Polling every 5 seconds (WebSocket alternative for demo)</span>
+      </div>
+    </mat-card-footer>
+  </mat-card>
+
+  <!-- Recent Battles Summary -->
+  @if (recentBattles().length > 0) {
+    <mat-card class="recent-battles-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>schedule</mat-icon>
+          Recent Battles
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="recent-list">
+          @for (battle of recentBattles(); track battle.id) {
+            <div class="recent-item" [class]="battle.result">
+              <div class="recent-info">
+                <strong>{{ battle.opponent_name }}</strong>
+                <span>{{ battle.date | date:'shortDate' }}</span>
+              </div>
+              <div class="recent-result">
+                <span class="score">{{ battle.score_trainer }} - {{ battle.score_opponent }}</span>
+                <mat-icon>{{ getResultIcon(battle.result) }}</mat-icon>
+              </div>
+            </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Polling Explanation (Documentation Requirement) -->
+  <mat-card class="info-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>info</mat-icon>
+        Why Polling Instead of WebSocket?
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p>
+        <strong>Polling is used here instead of GraphQL Subscriptions/WebSockets for the following reasons:</strong>
+      </p>
+      <ol>
+        <li>The mock JSON-GraphQL server (<code>json-graphql-server</code>) does not support real-time WebSocket connections or GraphQL Subscriptions</li>
+        <li>Polling (via RxJS <code>interval(5000).pipe(switchMap())</code>) simulates real-time behavior for demonstration purposes</li>
+        <li>This approach maintains compatibility with the project's specified requirements while providing similar functionality</li>
+        <li>In a production environment with Apollo Server or similar, this would be replaced with proper GraphQL Subscriptions over WebSocket for true real-time updates</li>
+      </ol>
+      <p class="note">
+        <mat-icon>code</mat-icon>
+        Implementation: <code>interval(5000).pipe(switchMap(() => this.battleService.getBattleLogs()))</code>
+      </p>
+    </mat-card-content>
+  </mat-card>
 </div>

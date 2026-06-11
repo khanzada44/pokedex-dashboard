@@ -31,7 +31,7 @@ export const routes: Routes = [
   {
     path: 'battles',
     loadComponent: () =>
-      import('./pages/battle/battle').then(m => m.Battle),
+      import('./pages/battle/battle').then(m => m.BattleComponent),
     title: 'Battles',
   },
 
