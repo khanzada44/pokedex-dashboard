@@ -1,112 +1,157 @@
 <div class="builder-layout">
-
   <app-sidebar></app-sidebar>
 
   <main class="builder-content">
-
     <div class="main-grid">
 
-      <!-- POKEDEX -->
+      <!-- POKEDEX SECTION -->
       <section class="pokedex-area">
-
-        <h2>Pokédex</h2>
-
-        <mat-form-field class="full-width">
-          <mat-label>Search Pokémon</mat-label>
-          <input matInput (keyup)="applyFilter($event)">
-        </mat-form-field>
-
-        <div class="pokemon-count">
-          Total: {{ allPokemon.length }}
+        <div class="section-header">
+          <h2>Pokédex</h2>
+          <div class="pokemon-count">Total: {{ pokedexList.length }} Pokémon</div>
         </div>
 
-        <cdk-virtual-scroll-viewport
-          class="pokedex-list"
-          itemSize="90">
+        <mat-form-field class="full-width search-field" appearance="outline">
+          <mat-label>Search Pokémon</mat-label>
+          <input matInput (keyup)="applyFilter($event)" placeholder="Search by name...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
 
+        <!-- DRAGGABLE POKEDEX LIST -->
+        <div class="pokedex-container">
           <div
-            class="pokemon-card"
-            *cdkVirtualFor="let p of allPokemon"
-            cdkDrag
-            [cdkDragData]="p">
-
-            <img [src]="p.sprites?.front_default" />
-
-            <div>
-              <strong>{{ p.name | titlecase }}</strong>
+            cdkDropList
+            class="pokedex-list"
+            [cdkDropListData]="pokedexList"
+            [cdkDropListConnectedTo]="['teamDropList']">
+            
+            <div
+              class="pokemon-card"
+              *ngFor="let pokemon of pokedexList"
+              cdkDrag
+              [cdkDragData]="pokemon">
+              <div class="drag-handle">⋮⋮</div>
+              <img [src]="pokemon.sprites?.front_default" [alt]="pokemon.name" class="pokemon-sprite">
+              <div class="pokemon-info">
+                <div class="pokemon-name">{{ pokemon.name | titlecase }}</div>
+                <div class="pokemon-type">{{ pokemon.types?.[0]?.name || 'Normal' }}</div>
+              </div>
             </div>
-
+            
+            <div *ngIf="pokedexList.length === 0" class="no-results">
+              <p>No Pokémon found</p>
+            </div>
           </div>
-
-        </cdk-virtual-scroll-viewport>
-
+        </div>
       </section>
 
-      <!-- TEAM BUILDER -->
+      <!-- TEAM BUILDER SECTION -->
       <aside class="sidebar-panel">
+        <div class="team-header">
+          <h2>Team Builder</h2>
+          <div class="team-counter">{{ selectedPokemon().length }}/6 Pokémon</div>
+        </div>
 
         <form [formGroup]="teamForm" (ngSubmit)="saveTeam()">
-
-          <h2>Team Builder</h2>
-
-          <mat-form-field class="full-width">
+          <mat-form-field class="full-width team-name-field" appearance="outline">
             <mat-label>Team Name</mat-label>
-            <input matInput formControlName="name">
+            <input matInput formControlName="name" placeholder="Enter team name...">
+            <mat-error *ngIf="teamForm.get('name')?.hasError('required')">
+              Team name is required
+            </mat-error>
+            <mat-error *ngIf="teamForm.get('name')?.hasError('minlength')">
+              Team name must be at least 3 characters
+            </mat-error>
+            <mat-error *ngIf="teamForm.get('name')?.hasError('teamExists')">
+              Team name already exists
+            </mat-error>
           </mat-form-field>
 
+          <!-- DROP ZONE FOR TEAM -->
           <div
-            class="slots-container"
             cdkDropList
+            #teamDropList="cdkDropList"
+            id="teamDropList"
+            class="slots-container"
             [cdkDropListData]="selectedPokemon()"
+            [cdkDropListConnectedTo]="['pokedexList']"
             (cdkDropListDropped)="onDrop($event)">
-
-            <div class="slot" *ngFor="let i of [0,1,2,3,4,5]">
-
-              <ng-container *ngIf="selectedPokemon()[i]; else empty">
-
-                <div class="selected-card">
-                  <span>
-                    {{ selectedPokemon()[i].name }}
-                  </span>
-
-                  <button type="button"
-                          (click)="removePokemon(i)">
-                    ×
-                  </button>
+            
+            <!-- Filled Pokémon Slots -->
+            <div
+              *ngFor="let pokemon of selectedPokemon(); let i = index"
+              cdkDrag
+              class="slot filled-slot">
+              <div class="selected-card">
+                <div class="drag-handle-small">⋮⋮</div>
+                <img 
+                  [src]="pokemon.sprites?.front_default" 
+                  [alt]="pokemon.name"
+                  class="team-pokemon-sprite">
+                <div class="pokemon-info">
+                  <div class="pokemon-name">{{ pokemon.name | titlecase }}</div>
+                  <div class="pokemon-power">Power: {{ pokemon.base_stat || 0 }}</div>
                 </div>
-
-              </ng-container>
-
-              <ng-template #empty>
-                <div class="empty-slot">
-                  Empty
-                </div>
-              </ng-template>
-
+                <button 
+                  type="button"
+                  class="remove-btn"
+                  (click)="removePokemon(i)"
+                  title="Remove Pokémon">
+                  ×
+                </button>
+              </div>
             </div>
 
+            <!-- Empty Pokémon Slots -->
+            <div
+              *ngFor="let slot of getEmptySlotsArray(); let i = index"
+              class="slot empty-slot">
+              <div class="empty-content">
+                <div class="plus-icon">+</div>
+                <span>Drop Pokémon</span>
+                <small>Slot {{ selectedPokemon().length + i + 1 }}</small>
+              </div>
+            </div>
           </div>
 
-          <div class="analysis-section"
-               *ngIf="selectedPokemon().length">
-
-            <strong>
-              Power: {{ calculateTotalPower() }}
-            </strong>
-
+          <!-- TEAM STATS SECTION -->
+          <div class="analysis-section" *ngIf="selectedPokemon().length > 0">
+            <h3>Team Analysis</h3>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <span class="stat-label">Total Power:</span>
+                <span class="stat-value">{{ calculateTotalPower() }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Type Coverage:</span>
+                <span class="stat-value">{{ calculateCoverage().join(', ') || 'None' }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Average Power:</span>
+                <span class="stat-value">{{ (calculateTotalPower() / selectedPokemon().length) | number:'1.0-0' }}</span>
+              </div>
+            </div>
+            <div class="warning-message" *ngIf="showTypeWarning()">
+              ⚠️ Add more Pokémon for better type coverage!
+            </div>
+            <div class="success-message" *ngIf="selectedPokemon().length === 6">
+              ✓ Team complete! Ready for battle!
+            </div>
           </div>
 
-          <button mat-raised-button color="primary"
-                  type="submit">
-            Save Team
-          </button>
-
+          <div class="form-actions">
+            <button 
+              mat-raised-button 
+              color="primary" 
+              type="submit"
+              class="save-button"
+              [disabled]="teamForm.invalid || selectedPokemon().length === 0">
+              <mat-icon>save</mat-icon>
+              Save Team
+            </button>
+          </div>
         </form>
-
       </aside>
-
     </div>
-
   </main>
-
 </div>

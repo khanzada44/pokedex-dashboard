@@ -1,9 +1,7 @@
 <div class="trainer-dashboard-container">
-
   <app-sidebar></app-sidebar>
 
   <main class="dashboard-workspace-stream">
-
     <div class="profile-switch-toolbar">
       <small class="toolbar-label">Active Trainer</small>
       <mat-button-toggle-group name="activeTrainer" class="custom-toggle-group"
@@ -15,38 +13,35 @@
         }
       </mat-button-toggle-group>
     </div>
+
     @if (stateSignal().loading && !activeTrainer()) {
       <div class="layout-sync-loader-wrapper">
         <mat-spinner diameter="48" class="mb-3"></mat-spinner>
         <p class="loader-primary-text">Loading Trainer Data</p>
-        <p class="loader-secondary-text">Connecting to PokéAPI and local GraphQL server…</p>
+        <p class="loader-secondary-text">Connecting to servers...</p>
       </div>
     }
+
     @if (stateSignal().error) {
       <div class="error-banner">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
         {{ stateSignal().error }}
       </div>
     }
+
     @if (activeTrainer(); as trainer) {
       <mat-card class="trainer-hero-profile-card">
         <mat-card-content class="hero-content-layout">
-
-          <!-- Identity -->
           <div class="identity-block">
             <img [src]="getAvatar(trainer.id)" [alt]="trainer.name" class="trainer-avatar-thumbnail">
             <div class="meta-text">
               <h2 class="trainer-title-identity">{{ trainer.name }}</h2>
               <div class="badge-row">
-                <span class="region-badge">
-                  <i class="bi bi-pin-map-fill me-1"></i>{{ trainer.region }}
-                </span>
+                <span class="region-badge">{{ trainer.region }}</span>
                 <span class="rank-badge">{{ trainer.rank }}</span>
               </div>
             </div>
           </div>
 
-          <!-- Stats -->
           <div class="analytics-metrics-block">
             <div class="analytics-stat-node border-divider">
               <h3 class="stat-metric-value text-warning">{{ trainer.badge_count }}</h3>
@@ -66,32 +61,25 @@
             </div>
           </div>
 
-          <!-- Hero Actions -->
           <div class="hero-actions">
-            <button mat-stroked-button class="hero-action-btn"
-              (click)="showProfileForm.set(!showProfileForm())">
-              <i class="bi bi-pencil-fill me-1"></i>Edit Profile
+            <button mat-stroked-button class="hero-action-btn" (click)="showProfileForm.set(!showProfileForm())">
+              Edit Profile
             </button>
-            <button mat-stroked-button class="hero-action-btn"
-              (click)="showBattleForm.set(!showBattleForm())">
-              <i class="bi bi-plus-circle-fill me-1"></i>Log Battle
+            <button mat-stroked-button class="hero-action-btn" (click)="showBattleForm.set(!showBattleForm())">
+              Log Battle
             </button>
           </div>
-
         </mat-card-content>
       </mat-card>
 
       @if (showProfileForm()) {
         <mat-card class="collapsible-panel animation-slide mb-4">
           <mat-card-header>
-            <mat-card-title class="panel-header-title">
-              <i class="bi bi-person-gear me-2 text-primary"></i>Update Trainer Profile
-            </mat-card-title>
+            <mat-card-title class="panel-header-title">Update Trainer Profile</mat-card-title>
           </mat-card-header>
           <mat-card-content class="pt-3">
             <form [formGroup]="profileForm" (ngSubmit)="onProfileUpdate()">
               <div class="profile-form-grid">
-
                 <mat-form-field appearance="outline" class="w-100">
                   <mat-label>Trainer Name</mat-label>
                   <input matInput formControlName="name">
@@ -110,19 +98,16 @@
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Badges Earned (0–8)</mat-label>
+                  <mat-label>Badges Earned (0-8)</mat-label>
                   <input matInput type="number" formControlName="badge_count" min="0" max="8">
                   @if (profileForm.get('badge_count')?.touched && profileForm.get('badge_count')?.invalid) {
                     <mat-error>Must be between 0 and 8.</mat-error>
                   }
                 </mat-form-field>
-
               </div>
 
               <div class="form-actions-row">
-                <button type="submit" mat-raised-button color="primary" [disabled]="profileForm.invalid">
-                  <i class="bi bi-check2-circle me-1"></i> Save Profile
-                </button>
+                <button type="submit" mat-raised-button color="primary" [disabled]="profileForm.invalid">Save Profile</button>
                 <button type="button" mat-button (click)="showProfileForm.set(false)">Cancel</button>
               </div>
             </form>
@@ -133,14 +118,11 @@
       @if (showBattleForm()) {
         <mat-card class="collapsible-panel animation-slide mb-4">
           <mat-card-header>
-            <mat-card-title class="panel-header-title">
-              <i class="bi bi-shield-shaded me-2 text-danger"></i>Log New Battle
-            </mat-card-title>
+            <mat-card-title class="panel-header-title">Log New Battle</mat-card-title>
           </mat-card-header>
           <mat-card-content class="pt-3">
             <form [formGroup]="battleLogForm" (ngSubmit)="onBattleLogSubmit()">
               <div class="profile-form-grid">
-
                 <mat-form-field appearance="outline" class="w-100">
                   <mat-label>Opponent Name</mat-label>
                   <input matInput formControlName="opponent_name" placeholder="e.g. Gary Oak">
@@ -164,8 +146,8 @@
                 <mat-form-field appearance="outline" class="w-100">
                   <mat-label>Result</mat-label>
                   <mat-select formControlName="result">
-                    <mat-option value="win">Win ✅</mat-option>
-                    <mat-option value="loss">Loss ❌</mat-option>
+                    <mat-option value="win">Win</mat-option>
+                    <mat-option value="loss">Loss</mat-option>
                   </mat-select>
                 </mat-form-field>
 
@@ -183,27 +165,21 @@
                   <mat-label>Battle Date</mat-label>
                   <input matInput type="date" formControlName="date">
                 </mat-form-field>
-
               </div>
 
               <div class="form-actions-row">
-                <button type="submit" mat-raised-button color="warn" [disabled]="battleLogForm.invalid">
-                  <i class="bi bi-journal-plus me-1"></i> Record Battle
-                </button>
+                <button type="submit" mat-raised-button color="warn" [disabled]="battleLogForm.invalid">Record Battle</button>
                 <button type="button" mat-button (click)="showBattleForm.set(false)">Cancel</button>
               </div>
             </form>
           </mat-card-content>
         </mat-card>
       }
-      <div class="charts-grid">
 
-        <!-- Bar Chart: Battles per Month -->
+      <div class="charts-grid">
         <mat-card class="chart-card">
           <mat-card-header>
-            <mat-card-title class="panel-header-sub">
-              <i class="bi bi-bar-chart-fill me-2 text-primary"></i>Monthly Battle Results
-            </mat-card-title>
+            <mat-card-title class="panel-header-sub">Monthly Battle Results</mat-card-title>
           </mat-card-header>
           <mat-card-content>
             @if (battleChartData().length > 0) {
@@ -226,24 +202,19 @@
               </div>
             } @else {
               <div class="chart-empty-state">
-                <i class="bi bi-graph-up text-muted fs-3"></i>
                 <p class="text-muted small mt-2">No battle data yet.</p>
               </div>
             }
           </mat-card-content>
         </mat-card>
 
-        <!-- Pie Chart: Team Type Distribution -->
         <mat-card class="chart-card">
           <mat-card-header>
-            <mat-card-title class="panel-header-sub">
-              <i class="bi bi-pie-chart-fill me-2 text-warning"></i>Team Type Coverage
-            </mat-card-title>
+            <mat-card-title class="panel-header-sub">Team Type Coverage</mat-card-title>
           </mat-card-header>
           <mat-card-content>
             @if (teamTypeDistribution().length > 0) {
               <div class="donut-chart-wrapper">
-                <!-- CSS-only donut using conic-gradient -->
                 <div class="donut-visual" [style]="buildDonutStyle()"></div>
                 <div class="donut-legend">
                   @for (entry of teamTypeDistribution(); track entry.type) {
@@ -257,19 +228,15 @@
               </div>
             } @else {
               <div class="chart-empty-state">
-                <i class="bi bi-pie-chart text-muted fs-3"></i>
                 <p class="text-muted small mt-2">Build a team to see type distribution.</p>
               </div>
             }
           </mat-card-content>
         </mat-card>
 
-        <!-- Win Rate Card with radial progress -->
         <mat-card class="chart-card chart-card--narrow">
           <mat-card-header>
-            <mat-card-title class="panel-header-sub">
-              <i class="bi bi-trophy-fill me-2 text-success"></i>Win Rate
-            </mat-card-title>
+            <mat-card-title class="panel-header-sub">Win Rate</mat-card-title>
           </mat-card-header>
           <mat-card-content class="d-flex flex-column align-items-center justify-content-center py-3">
             <div class="radial-progress" [style]="buildRadialStyle(winRateAnalysis().percentage)">
@@ -280,44 +247,34 @@
             </div>
           </mat-card-content>
         </mat-card>
-
       </div>
 
-      <!-- Type Weakness Advisory Banner -->
       @if (typeWeaknessGap().length > 0) {
         <div class="weakness-advisory-banner animation-slide">
-          <i class="bi bi-shield-exclamation fs-5 flex-shrink-0"></i>
           <div>
             <strong>Coverage Advisory:</strong> Your team may be vulnerable to
             @for (type of typeWeaknessGap(); track type; let last = $last) {
               <span class="type-chip" [style.background]="getTypeColor(type)">{{ type }}</span>{{ last ? '' : ', ' }}
             }
-            — consider adding a counter.
+            - consider adding a counter.
           </div>
         </div>
       }
 
       <div class="workspace-grid">
-
         <div class="operational-panel">
-
-          <!-- TEAM BUILDER FORM -->
           <mat-card class="form-canvas-card">
             <mat-card-header>
-              <mat-card-title class="panel-header-title">
-                <i class="bi bi-hammer text-primary me-2"></i>Team Builder
-              </mat-card-title>
+              <mat-card-title class="panel-header-title">Team Builder</mat-card-title>
             </mat-card-header>
 
             <mat-card-content class="pt-3">
               <form [formGroup]="teamForm" (ngSubmit)="onTeamFormSubmit()">
-
-                <!-- Team Name -->
                 <mat-form-field appearance="outline" class="w-100 mb-2">
                   <mat-label>Team Name</mat-label>
                   <input matInput formControlName="teamName" placeholder="e.g. Kanto Elite">
                   @if (teamForm.get('teamName')?.pending) {
-                    <mat-hint>Checking availability…</mat-hint>
+                    <mat-hint>Checking availability...</mat-hint>
                   }
                   @if (teamForm.get('teamName')?.touched) {
                     @if (teamForm.get('teamName')?.errors?.['required']) {
@@ -332,14 +289,12 @@
                   }
                 </mat-form-field>
 
-                <!-- Competitive Mode Toggle -->
                 <div class="toggle-regulation-bar">
                   <mat-slide-toggle color="primary" (change)="toggleCompetitiveMode()">
                     Competitive Mode (EV Spreads + Tier)
                   </mat-slide-toggle>
                 </div>
 
-                <!-- Competitive: Tier Select -->
                 @if (competitiveMode()) {
                   <div class="regulation-protocol-alert animation-slide">
                     <mat-form-field appearance="outline" class="w-100">
@@ -350,35 +305,28 @@
                         }
                       </mat-select>
                     </mat-form-field>
-                    <p class="alert-desc mt-1">
-                      <i class="bi bi-info-circle me-1"></i>
-                      EV spreads per Pokémon must total ≤ 510.
-                    </p>
+                    <p class="alert-desc mt-1">EV spreads per Pokemon must total 510 or less.</p>
                   </div>
                 }
 
-                <!-- Pokémon Slots -->
                 <div class="composition-nodes-section">
                   <div class="section-header-row">
-                    <h6 class="composition-title">
-                      Team Slots ({{ pokemonSlots.length }}/6)
-                    </h6>
-                    <!-- Demo add buttons — real app uses search autocomplete -->
+                    <h6 class="composition-title">Team Slots ({{ pokemonSlots.length }}/6)</h6>
                     <div class="add-slot-actions">
                       <button type="button" mat-stroked-button color="accent" class="rounded-pill btn-sm"
                         (click)="addPokemonSlot(25, 'Pikachu', 'electric')"
                         [disabled]="pokemonSlots.length >= 6">
-                        <i class="bi bi-plus-circle me-1"></i> Pikachu
+                        + Pikachu
                       </button>
                       <button type="button" mat-stroked-button color="accent" class="rounded-pill btn-sm"
                         (click)="addPokemonSlot(6, 'Charizard', 'fire')"
                         [disabled]="pokemonSlots.length >= 6">
-                        <i class="bi bi-plus-circle me-1"></i> Charizard
+                        + Charizard
                       </button>
                       <button type="button" mat-stroked-button color="accent" class="rounded-pill btn-sm"
                         (click)="addPokemonSlot(9, 'Blastoise', 'water')"
                         [disabled]="pokemonSlots.length >= 6">
-                        <i class="bi bi-plus-circle me-1"></i> Blastoise
+                        + Blastoise
                       </button>
                     </div>
                   </div>
@@ -387,14 +335,10 @@
                     @for (slotGroup of pokemonSlots.controls; track $index) {
                       <div [formGroupName]="$index" class="slot-item-node">
                         <mat-card class="pokemon-matrix-input-slot-card">
-
-                          <!-- Remove Button -->
-                          <button type="button" class="close-slot-btn" (click)="removePokemonSlot($index)"
-                            aria-label="Remove Pokémon slot">
-                            <i class="bi bi-x-lg"></i>
+                          <button type="button" class="close-slot-btn" (click)="removePokemonSlot($index)">
+                            X
                           </button>
 
-                          <!-- Pokémon Header -->
                           <mat-card-header class="p-0 mb-2">
                             <div class="slot-pokemon-header">
                               <span class="slot-pokemon-name text-primary">
@@ -408,7 +352,6 @@
                           </mat-card-header>
 
                           <mat-card-content class="p-0 slot-form-controls">
-                            <!-- Nickname -->
                             <mat-form-field appearance="outline" class="w-100 density-compact">
                               <mat-label>Nickname (optional)</mat-label>
                               <input matInput formControlName="nickname" placeholder="Max 12 chars">
@@ -417,7 +360,6 @@
                               }
                             </mat-form-field>
 
-                            <!-- Held Item -->
                             <mat-form-field appearance="outline" class="w-100 density-compact">
                               <mat-label>Held Item</mat-label>
                               <mat-select formControlName="heldItem">
@@ -427,11 +369,9 @@
                               </mat-select>
                             </mat-form-field>
 
-                            <!-- EV Spread (competitive mode only) -->
                             @if (competitiveMode()) {
                               <div formGroupName="evSpread" class="ev-spread-grid">
-                                <div class="ev-total-bar"
-                                  [class.ev-over]="getEvTotal($index) > 510">
+                                <div class="ev-total-bar" [class.ev-over]="getEvTotal($index) > 510">
                                   EV Total: {{ getEvTotal($index) }} / 510
                                 </div>
                                 @for (stat of ['hp','atk','def','spAtk','spDef','speed']; track stat) {
@@ -450,26 +390,22 @@
 
                   @if (pokemonSlots.length === 0) {
                     <div class="empty-state-box">
-                      <i class="bi bi-person-add fs-3 text-muted d-block mb-2"></i>
-                      Add up to 6 Pokémon to build your team.
+                      Add up to 6 Pokemon to build your team.
                     </div>
                   }
                 </div>
 
-                <button type="submit" mat-raised-button color="primary"
-                  [disabled]="teamForm.invalid || teamForm.pending || pokemonSlots.length === 0"
-                  class="w-100 py-3 mt-3 submit-action-btn">
-                  <i class="bi bi-save2-fill me-2"></i>Save Team
-                </button>
+            <button type="submit" mat-raised-button color="primary"
+              class="w-100 py-3 mt-3 submit-action-btn">
+              Save Team
+            </button>
               </form>
             </mat-card-content>
           </mat-card>
 
-          <!-- SAVED TEAMS REGISTRY -->
           <mat-card class="history-registry-card mt-4">
             <mat-card-header>
               <mat-card-title class="panel-header-sub">
-                <i class="bi bi-archive-fill text-muted me-2"></i>
                 Saved Teams ({{ trainerTeams().length }})
               </mat-card-title>
             </mat-card-header>
@@ -480,12 +416,11 @@
                     <div class="saved-team-header">
                       <h6 class="saved-team-title text-truncate">{{ team.name }}</h6>
                       <button mat-icon-button color="warn" class="delete-team-btn"
-                        (click)="deletingTeamId.set(team.id)" aria-label="Delete team">
-                        <i class="bi bi-trash3"></i>
+                        (click)="deletingTeamId.set(team.id)">
+                        X
                       </button>
                     </div>
                     <small class="text-muted d-block mb-2 font-monospace">
-                      <i class="bi bi-clock-history me-1"></i>
                       {{ team.created_at | date:'mediumDate' }}
                     </small>
                     <div class="team-pokemon-chips">
@@ -494,7 +429,6 @@
                       }
                     </div>
 
-                    <!-- Inline delete confirmation -->
                     @if (deletingTeamId() === team.id) {
                       <div class="delete-confirm animation-slide">
                         <span class="delete-confirm-text">Delete this team?</span>
@@ -505,15 +439,14 @@
                   </div>
                 } @empty {
                   <div class="empty-state-box full-width-span">
-                    <i class="bi bi-folder-x fs-2 text-muted d-block mb-2"></i>
                     No teams saved yet. Build one above!
                   </div>
                 }
               </div>
             </mat-card-content>
           </mat-card>
-
         </div>
+
         <div class="sidebar-logs-panel">
           <mat-card class="battle-logs-card">
             <mat-card-header class="pb-0">
@@ -521,26 +454,17 @@
                 <mat-tab-group [selectedIndex]="activeTab()"
                   (selectedIndexChange)="activeTab.set($event)" animationDuration="200ms"
                   class="logs-tab-group">
-
-                  <!-- Tab 1: Battle History -->
                   <mat-tab>
-                    <ng-template mat-tab-label>
-                      <i class="bi bi-journal-text me-1"></i> Battle History
-                    </ng-template>
-
+                    <ng-template mat-tab-label>Battle History</ng-template>
                     <mat-nav-list class="battle-logs-list">
                       @for (battle of activeBattles(); track battle.id) {
                         <mat-list-item class="battle-log-item-wrapper">
                           <div class="battle-log-item-content">
                             <div class="log-meta">
-                              <h6 class="opponent-title text-capitalize">
-                                vs {{ battle.opponent_name }}
-                              </h6>
-                              <small class="timestamp-label">
-                                <i class="bi bi-calendar3-event me-1"></i>{{ battle.date }}
-                              </small>
+                              <h6 class="opponent-title text-capitalize">vs {{ battle.opponent_name }}</h6>
+                              <small class="timestamp-label">{{ battle.date }}</small>
                               <span class="score-matrix-tag">
-                                {{ battle.score_trainer }}–{{ battle.score_opponent }}
+                                {{ battle.score_trainer }}-{{ battle.score_opponent }}
                               </span>
                             </div>
                             <span [class]="battle.result === 'win' ? 'battle-badge-win' : 'battle-badge-loss'">
@@ -551,42 +475,26 @@
                         <mat-divider></mat-divider>
                       } @empty {
                         <div class="empty-state-box py-5">
-                          <i class="bi bi-clipboard-x d-block fs-3 mb-2 text-muted"></i>
                           No battles logged. Use "Log Battle" above.
                         </div>
                       }
                     </mat-nav-list>
                   </mat-tab>
 
-                  <!-- Tab 2: Live Feed (polled every 5s) -->
                   <mat-tab>
-                    <ng-template mat-tab-label>
-                      <i class="bi bi-broadcast me-1 text-danger"></i> Live Feed
-                      <span class="live-indicator"></span>
-                    </ng-template>
-
+                    <ng-template mat-tab-label>Live Feed</ng-template>
                     <div class="live-feed-container">
-                      <div class="live-feed-notice">
-                        <i class="bi bi-info-circle me-1"></i>
-                        Polling every 5 s — simulated real-time feed.
-                      </div>
-
+                      <div class="live-feed-notice">Polling every 5 seconds - simulated real-time feed</div>
                       @for (log of liveBattleLogs(); track log.id) {
                         <div class="live-log-entry" [class]="getSeverityClass(log.severity)">
-                          <span class="live-log-time">
-                            {{ log.timestamp | date:'HH:mm:ss' }}
-                          </span>
+                          <span class="live-log-time">{{ log.timestamp | date:'HH:mm:ss' }}</span>
                           <span class="live-log-message">{{ log.message }}</span>
                         </div>
                       } @empty {
-                        <div class="empty-state-box py-4">
-                          <i class="bi bi-wifi-off d-block fs-3 mb-2 text-muted"></i>
-                          No live events yet. Start a battle!
-                        </div>
+                        <div class="empty-state-box py-4">No live events yet. Start a battle!</div>
                       }
                     </div>
                   </mat-tab>
-
                 </mat-tab-group>
               </mat-card-title>
             </mat-card-header>

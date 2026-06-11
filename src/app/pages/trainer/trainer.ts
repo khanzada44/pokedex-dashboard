@@ -1,8 +1,8 @@
-import {Component,inject,OnInit,signal,computed,effect,ChangeDetectionStrategy} from '@angular/core';
+import { Component, inject, OnInit, signal, computed, effect, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {FormBuilder,FormGroup,FormArray,Validators,ReactiveFormsModule,AbstractControl,ValidationErrors,AsyncValidatorFn,} from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors, AsyncValidatorFn } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Observable, of, debounceTime, distinctUntilChanged, map, switchMap, first } from 'rxjs';
+import { Observable, of, debounceTime, distinctUntilChanged, switchMap, first } from 'rxjs';
 import { Sidebar } from '../../layout/sidebar/sidebar';
 import { MaterialModule } from '../../shared/material/material-module';
 import { TrainerDashboardStore, LocalTrainerState } from '../../state/trainer.store';
@@ -10,7 +10,7 @@ import { Team } from '../../models/team.model';
 import { Battle } from '../../models/battle.model';
 import { Trainer as TrainerModel } from '../../models/trainer.model';
 import { MatTabsModule } from '@angular/material/tabs';
-
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 const TYPE_COLORS: Record<string, string> = {
   fire: '#f97316',
@@ -35,7 +35,6 @@ const TYPE_COLORS: Record<string, string> = {
 
 const COMMON_OFFENSIVE_TYPES = ['fire', 'water', 'electric', 'grass', 'ice', 'fighting'];
 
-
 @Component({
   selector: 'app-trainer',
   standalone: true,
@@ -47,6 +46,7 @@ const COMMON_OFFENSIVE_TYPES = ['fire', 'water', 'electric', 'grass', 'ice', 'fi
 export class Trainer implements OnInit {
   private store = inject(TrainerDashboardStore);
   private fb = inject(FormBuilder);
+  private snackBar = inject(MatSnackBar);
 
   readonly defaultAvatars: string[] = [
     '',
@@ -72,7 +72,9 @@ export class Trainer implements OnInit {
   showProfileForm = signal<boolean>(false);
   activeTab = signal<number>(0);
   deletingTeamId = signal<number | null>(null);
-
+  isSavingTeam = signal<boolean>(false);
+  showSaveSuccess = signal<boolean>(false);
+  lastSavedTeam = signal<string>('');
 
   stateSignal = toSignal(this.store.state, {
     initialValue: {
@@ -86,20 +88,18 @@ export class Trainer implements OnInit {
     } as LocalTrainerState,
   });
 
-
   activeTrainer = computed(() => {
     const state = this.stateSignal();
     if (!state?.trainers?.length) return null;
     return state.trainers.find((t: TrainerModel) => t.id === state.currentTrainerId) ?? null;
   });
 
-
   trainerTeams = computed(() => {
-    const state = this.stateSignal();
-    if (!state?.teams) return [] as Team[];
-    return state.teams.filter((t: Team) => t.trainer_id === state.currentTrainerId);
+  const allTeams = this.store.teams(); 
+    const currentId = this.stateSignal().currentTrainerId;
+    console.log(' trainerTeams computed:', { allTeams, currentId });
+    return allTeams.filter((t: Team) => t.trainer_id === currentId);
   });
-
 
   winRateAnalysis = computed(() => {
     const state = this.stateSignal();
@@ -117,7 +117,6 @@ export class Trainer implements OnInit {
 
     return { wins, losses, total, percentage };
   });
-
 
   battleChartData = computed(() => {
     const state = this.stateSignal();
@@ -146,19 +145,19 @@ export class Trainer implements OnInit {
       }));
   });
 
-
   teamTypeDistribution = computed(() => {
     const teams = this.trainerTeams();
     if (!teams.length) return [] as { type: string; count: number; color: string }[];
 
-    // For demo: count pokemon_ids length per type slot — real app would look up type from store
     const typeCountMap: Record<string, number> = {};
     const demoTypes = ['water', 'fire', 'grass', 'electric', 'dragon', 'ice', 'normal', 'psychic'];
 
-    teams[0].pokemon_ids.forEach((id: number) => {
-      const demoType = demoTypes[id % demoTypes.length];
-      typeCountMap[demoType] = (typeCountMap[demoType] || 0) + 1;
-    });
+    if (teams[0] && teams[0].pokemon_ids) {
+      teams[0].pokemon_ids.forEach((id: number) => {
+        const demoType = demoTypes[id % demoTypes.length];
+        typeCountMap[demoType] = (typeCountMap[demoType] || 0) + 1;
+      });
+    }
 
     return Object.entries(typeCountMap).map(([type, count]) => ({
       type,
@@ -166,7 +165,6 @@ export class Trainer implements OnInit {
       color: TYPE_COLORS[type] ?? '#94a3b8',
     }));
   });
-
 
   typeWeaknessGap = computed(() => {
     const teams = this.trainerTeams();
@@ -193,20 +191,24 @@ export class Trainer implements OnInit {
     return state?.battleLogs ?? [];
   });
 
+  canSaveTeam = computed(() => {
+    const formValid = this.teamForm?.valid ?? false;
+    const hasPokemon = this.pokemonSlots?.length > 0;
+    const notSaving = !this.isSavingTeam();
+    return formValid && hasPokemon && notSaving;
+  });
+
   teamForm!: FormGroup;
   battleLogForm!: FormGroup;
   profileForm!: FormGroup;
 
-
   constructor() {
-
     effect(() => {
       const trainer = this.activeTrainer();
       if (trainer && typeof window !== 'undefined') {
         localStorage.setItem('active_trainer_id', trainer.id.toString());
       }
     });
-
 
     effect(() => {
       const trainer = this.activeTrainer();
@@ -222,7 +224,6 @@ export class Trainer implements OnInit {
       }
     });
   }
-
 
   ngOnInit(): void {
     if (typeof window !== 'undefined') {
@@ -293,7 +294,6 @@ export class Trainer implements OnInit {
     return this.teamForm.get('pokemonSlots') as FormArray;
   }
 
-
   getAvatar(index: number): string {
     return this.defaultAvatars[index] ?? this.defaultAvatars[0];
   }
@@ -333,7 +333,6 @@ export class Trainer implements OnInit {
     this.pokemonSlots.push(slotGroup);
   }
 
-
   removePokemonSlot(index: number): void {
     this.pokemonSlots.removeAt(index);
   }
@@ -345,20 +344,65 @@ export class Trainer implements OnInit {
   onTeamFormSubmit(): void {
     if (this.teamForm.invalid) {
       this.teamForm.markAllAsTouched();
+      this.snackBar.open('Please fix form errors before saving', 'Close', { duration: 3000 });
       return;
     }
 
-    const { teamName, pokemonSlots } = this.teamForm.value as {
-      teamName: string;
-      pokemonSlots: Array<{ pokemonId: number }>;
+    const slots = this.pokemonSlots.value;
+    if (!slots || slots.length === 0) {
+      this.snackBar.open('Add at least 1 Pokemon to your team', 'Close', { duration: 3000 });
+      return;
+    }
+
+    const teamName = this.teamForm.get('teamName')?.value;
+    
+    const existingTeam = this.trainerTeams().find(
+      t => t.name.toLowerCase() === teamName.toLowerCase()
+    );
+    
+    if (existingTeam) {
+      this.snackBar.open(`Team "${teamName}" already exists`, 'Close', { duration: 4000 });
+      return;
+    }
+
+    this.isSavingTeam.set(true);
+    
+    const pokemonIds = slots.map((slot: any) => slot.pokemonId);
+    const newTeam = {
+      id: Date.now(),
+      trainer_id: this.stateSignal().currentTrainerId,
+      name: teamName,
+      pokemon_ids: pokemonIds,
+      created_at: new Date().toISOString(),
     };
 
-    this.store.saveTrainerTeam(
-      teamName,
-      pokemonSlots.map((p) => p.pokemonId),
-    );
+    this.optimisticallyAddTeam(newTeam);
+    
+    this.lastSavedTeam.set(teamName);
+    this.showSaveSuccess.set(true);
+    this.snackBar.open(`Team "${teamName}" saved successfully`, 'Dismiss', { duration: 3000 });
+    
+    setTimeout(() => {
+      this.showSaveSuccess.set(false);
+    }, 3000);
+    
+    this.resetTeamForm();
+    this.isSavingTeam.set(false);
+  }
+
+  private optimisticallyAddTeam(team: any): void {
+    const currentTeams = this.trainerTeams();
+    const allTeams = [...this.stateSignal().teams, team];
+    this.store.teams.set(allTeams);
+    this.store.updateTeamsOptimistically(allTeams);
+    console.log('Hello Teams', this.store.teams());
+  }
+
+  private resetTeamForm(): void {
     this.teamForm.reset({ teamName: '', competitiveTier: 'OU' });
-    this.pokemonSlots.clear();
+    while (this.pokemonSlots.length) {
+      this.pokemonSlots.removeAt(0);
+    }
   }
 
   onBattleLogSubmit(): void {
@@ -380,6 +424,7 @@ export class Trainer implements OnInit {
       date: new Date().toISOString().substring(0, 10),
     });
     this.showBattleForm.set(false);
+    this.snackBar.open('Battle logged successfully', 'Close', { duration: 2000 });
   }
 
   onProfileUpdate(): void {
@@ -390,16 +435,18 @@ export class Trainer implements OnInit {
 
     this.store.updateTrainerProfile(this.stateSignal().currentTrainerId, this.profileForm.value);
     this.showProfileForm.set(false);
+    this.snackBar.open('Profile updated successfully', 'Close', { duration: 2000 });
   }
 
   confirmDeleteTeam(teamId: number): void {
     this.store.deleteTeam(teamId);
     this.deletingTeamId.set(null);
+    this.snackBar.open('Team deleted successfully', 'Close', { duration: 2000 });
   }
 
   switchActiveTrainer(id: number): void {
     this.store.setTrainerId(id);
-    this.pokemonSlots.clear();
+    this.resetTeamForm();
     this.showBattleForm.set(false);
     this.showProfileForm.set(false);
   }
@@ -430,7 +477,7 @@ export class Trainer implements OnInit {
 
   buildRadialStyle(percentage: number): string {
     const deg = (percentage / 100) * 360;
-     return `background: conic-gradient(#22c55e ${deg}deg, #e2e8f0 ${deg}deg)`;
+    return `background: conic-gradient(#22c55e ${deg}deg, #e2e8f0 ${deg}deg)`;
   }
 
   private _formatMonthLabel(iso: string): string {

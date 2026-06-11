@@ -428,4 +428,13 @@ export class TrainerDashboardStore {
       })
     ).subscribe();
   }
+  
+  updateTeamsOptimistically(teams: Team[]): void {
+  const currentState = this.state$.getValue()
+  this.state$.next({
+    ...currentState,
+    teams: teams
+  });
+}
+
 }

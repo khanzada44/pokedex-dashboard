@@ -47,14 +47,28 @@ fetchAllPokemon(): Observable<any[]> {
     .pipe(
       map((res: any) => {
         const list = res?.data?.pokemon_v2_pokemon || [];
-
-        return list.map((p: any) => ({
-          ...p,
-          sprites:
-            typeof p.pokemon_v2_pokemonsprites?.[0]?.sprites === 'string'
+        
+        return list.map((p: any) => {
+          let sprites = null;
+          if (p.pokemon_v2_pokemonsprites?.[0]?.sprites) {
+            sprites = typeof p.pokemon_v2_pokemonsprites[0].sprites === 'string'
               ? JSON.parse(p.pokemon_v2_pokemonsprites[0].sprites)
-              : p.pokemon_v2_pokemonsprites?.[0]?.sprites,
-        }));
+              : p.pokemon_v2_pokemonsprites[0].sprites;
+          }
+          
+          // Extract stats
+          const stats = p.pokemon_v2_pokemonstats || [];
+          const totalPower = stats.reduce((sum: number, stat: any) => 
+            sum + (stat.base_stat || 0), 0
+          );
+          
+          return {
+            ...p,
+            sprites: sprites,
+            base_stat: totalPower,
+            pokemon_v2_pokemonstats: stats
+          };
+        });
       })
     );
 }
