@@ -105,6 +105,8 @@ export class TeamBuilder implements OnInit {
   }
 
   fetchPokemon(): void {
+    console.log('hello');
+    
     this.loading.set(true);
 
     this.pokemonService.fetchAllPokemon()
@@ -127,6 +129,7 @@ export class TeamBuilder implements OnInit {
           );
         }
       });
+  
   }
 
   get pokemonConfigs(): FormArray {

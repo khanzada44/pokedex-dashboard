@@ -37,8 +37,8 @@ export class TrainerDashboardStore {
 
   @Inject(PLATFORM_ID) private platformId: any;
 
-  private isBrowser: boolean;
-  private isServer: boolean;
+  // private isBrowser: boolean;
+  // private isServer: boolean;
 
   teams = signal<Team[]>([]);  
   selectedPokemon = signal<any[]>([]);
@@ -114,10 +114,10 @@ export class TrainerDashboardStore {
 
   constructor() {
     // Check platform for SSR compatibility
-    this.isBrowser = isPlatformBrowser(this.platformId);
-    this.isServer = isPlatformServer(this.platformId);
+    // this.isBrowser = isPlatformBrowser(this.platformId);
+    // this.isServer = isPlatformServer(this.platformId);
     
-    console.log('TrainerDashboardStore initialized - isBrowser:', this.isBrowser);
+    // console.log('TrainerDashboardStore initialized - isBrowser:', this.isBrowser);
     
     this.initLiveBattleFeed();
     this.initTrainerPersistence();
@@ -131,10 +131,10 @@ export class TrainerDashboardStore {
 
   private initLiveBattleFeed(): void {
     // Only run polling in browser, not in SSR
-    if (!this.isBrowser) {
-      console.log('Skipping live battle feed on server');
-      return;
-    }
+    // if (!this.isBrowser) {
+    //   console.log('Skipping live battle feed on server');
+    //   return;
+    // }
     
     interval(5000).pipe(
       switchMap(() => this.battleService.getBattleLogs()),
@@ -159,10 +159,10 @@ export class TrainerDashboardStore {
 
   private initTrainerPersistence(): void {
     // Only run in browser environment
-    if (!this.isBrowser) {
-      console.log('Skipping localStorage on server');
-      return;
-    }
+    // if (!this.isBrowser) {
+    //   console.log('Skipping localStorage on server');
+    //   return;
+    // }
     
     try {
       // Load from localStorage on init (only in browser)

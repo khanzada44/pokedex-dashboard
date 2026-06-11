@@ -134,12 +134,23 @@ export const GET_TRAINER_DATA_QUERY = `
 `;
 
 export const GET_ALL_POKEMON = gql`
-  query GetPokemon {
-    pokemon_v2_pokemon(limit: 100) {
+  query GetAllPokemon {
+    pokemon_v2_pokemon(limit: 151) { 
       id
       name
       pokemon_v2_pokemonsprites {
         sprites
+      }
+      pokemon_v2_pokemontypes { 
+        pokemon_v2_type {
+          name
+        }
+      }
+      pokemon_v2_pokemonstats {
+        base_stat
+        pokemon_v2_stat {
+          name
+        }
       }
     }
   }

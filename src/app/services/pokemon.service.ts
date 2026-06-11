@@ -37,21 +37,25 @@ export class PokemonService {
   }
 
 
-  fetchAllPokemon(): Observable<any[]> {
-    return this.apollo
-      .watchQuery({
-        query: GET_ALL_POKEMON,
+fetchAllPokemon(): Observable<any[]> {
+  return this.apollo
+    .watchQuery({
+      query: GET_ALL_POKEMON,
+      fetchPolicy: 'network-only',
+    })
+    .valueChanges
+    .pipe(
+      map((res: any) => {
+        const list = res?.data?.pokemon_v2_pokemon || [];
+
+        return list.map((p: any) => ({
+          ...p,
+          sprites:
+            typeof p.pokemon_v2_pokemonsprites?.[0]?.sprites === 'string'
+              ? JSON.parse(p.pokemon_v2_pokemonsprites[0].sprites)
+              : p.pokemon_v2_pokemonsprites?.[0]?.sprites,
+        }));
       })
-      .valueChanges.pipe(
-        map((res: any) =>
-          res.data.pokemon_v2_pokemon.map((p: any) => ({
-            ...p,
-            sprites:
-              typeof p.pokemon_v2_pokemonsprites?.[0]?.sprites === 'string'
-                ? JSON.parse(p.pokemon_v2_pokemonsprites[0].sprites)
-                : p.pokemon_v2_pokemonsprites?.[0]?.sprites,
-          })),
-        ),
-      );
-  }
+    );
+}
 }
