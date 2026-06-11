@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, OnInit, signal } from '@angular/core';
 import { AbstractControl, AsyncValidatorFn, FormArray, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
@@ -11,6 +11,7 @@ import { TrainerService } from '../../services/trainer.service';
 import { PokemonService } from '../../services/pokemon.service';
 import { Sidebar } from '../../layout/sidebar/sidebar';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ChangeDetectorRef, inject } from '@angular/core';
 
 @Component({
   selector: 'app-team-builder',
@@ -30,7 +31,7 @@ export class TeamBuilder implements OnInit {
   activeTab = signal(0);
   sidebarCollapsed = signal(false);
   currentTrainerId = signal(1);
-
+  private cdr = inject(ChangeDetectorRef);
   private snackBar = inject(MatSnackBar);
   private fb = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
@@ -65,6 +66,7 @@ export class TeamBuilder implements OnInit {
   });
 
   constructor() {
+    
     effect(() => {
       if (typeof window !== 'undefined') {
         localStorage.setItem('trainerId', this.currentTrainerId().toString());
@@ -106,6 +108,7 @@ export class TeamBuilder implements OnInit {
           this.originalPokemonList = data;
           this.pokedexList = [...data];
           this.loading.set(false);
+          this.cdr.detectChanges(); 
         },
         error: () => {
           this.loading.set(false);
